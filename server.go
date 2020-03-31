@@ -46,10 +46,11 @@ func main() {
 
 	// http server
 	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/consent", consentHandler)
+	// http.HandleFunc("/consent", consentHandler)
 	http.HandleFunc("/authorize", authorizeHandler)
 	http.HandleFunc("/token", tokenHandler)
 	http.HandleFunc("/test", testHandler)
+    http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 	log.Println("Server is running at 9096 port.")
 	log.Fatal(http.ListenAndServe(":9096", nil))
 }
@@ -125,7 +126,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		store.Set("LoggedInUserID", r.Form.Get("username"))
 		store.Save()
 
-		w.Header().Set("Location", "/consent")
+		// w.Header().Set("Location", "/consent")
+		w.Header().Set("Location", "/authorize")
 		w.WriteHeader(http.StatusFound)
 		return
 	}
@@ -138,7 +140,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     t.Execute(w,nil)
 }
 
-func consentHandler(w http.ResponseWriter, r *http.Request) {
+/*func consentHandler(w http.ResponseWriter, r *http.Request) {
 	store, err := session.Start(nil, w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -156,7 +158,7 @@ func consentHandler(w http.ResponseWriter, r *http.Request) {
 		return
     }
     t.Execute(w,nil)
-}
+}*/
 
 // 首先进入执行
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
