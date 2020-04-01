@@ -26,9 +26,11 @@ oauth2 server based on go-oauth2
 ### 2. 使用`code`交换`token`
 
 - Method
+
 `POST`
 
 - Url
+
 `http://localhost:9096/token`
 
 - Authorization
