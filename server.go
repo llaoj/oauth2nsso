@@ -25,9 +25,9 @@ func main() {
 	//manager config
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
-	// token store
+	//token store
 	manager.MustTokenStorage(store.NewMemoryTokenStore())
-	// generate jwt access token
+	//generate jwt access token
 	manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("00000000"), jwt.SigningMethodHS512))
 	clientStore := store.NewClientStore()
 	clientStore.Set("222222", &models.Client{
@@ -84,8 +84,8 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 	userID = uid.(string)
 	// 不记住用户
 	// store.Delete("LoggedInUserID")
-	// store.Save()	
-	
+	// store.Save()
+
 	return
 }
 
@@ -140,25 +140,24 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     t.Execute(w,nil)
 }
 
-/*func consentHandler(w http.ResponseWriter, r *http.Request) {
-	store, err := session.Start(nil, w, r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if _, ok := store.Get("LoggedInUserID"); !ok {
-		w.Header().Set("Location", "/login")
-		w.WriteHeader(http.StatusFound)
-		return
-	}
-	t, err := template.ParseFiles("tpl/consent.html")
-	if err != nil{
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-    }
-    t.Execute(w,nil)
-}*/
+// func consentHandler(w http.ResponseWriter, r *http.Request) {
+// 	store, err := session.Start(nil, w, r)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	if _, ok := store.Get("LoggedInUserID"); !ok {
+// 		w.Header().Set("Location", "/login")
+// 		w.WriteHeader(http.StatusFound)
+// 		return
+// 	}
+// 	t, err := template.ParseFiles("tpl/consent.html")
+// 	if err != nil{
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+//     }
+//     t.Execute(w,nil)
+// }
 
 // 首先进入执行
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {

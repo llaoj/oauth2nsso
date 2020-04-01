@@ -27,7 +27,7 @@ GET
 |response_type|string|固定值`code`|
 |scope|string|权限范围,`str1,str2,str3`|
 |state|string|验证请求的标志字段,后续第二部需要先验证该字段是否是第一步设置的值|
-|redirect_uri|string|发放`code`用的回调uri,回调时会在uri后面跟上`?code=**&state=###`|**
+|redirect_uri|string|发放`code`用的回调uri,回调时会在uri后面跟上`?code=**&state=###`|
 
 **返回示例**  
 `302 http://localhost:9094/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz`
@@ -70,6 +70,7 @@ POST
 
 ## 5. 验证token
 
+**接口说明**  
 这个接口是资源服务端使用的, 用来验证token, **如果返回正确, 资源服务端还要验证下scope**
 
 **请求方法**  
