@@ -5,12 +5,12 @@ oauth2 server based on go-oauth2
 2.
 3.
 4.
-
+5. 验证access_token
 ---
 
-## Flow: authorization_code
+## 1. Flow: authorization_code
 
-### 1. 获取授权code
+### 1.1. 获取授权code
 
 **方法**  
 GET
@@ -32,7 +32,7 @@ GET
 **返回示例**  
 `302 http://localhost:9094/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz`
 
-### 2. 使用`code`交换`token`
+### 1.2. 使用`code`交换`token`
 
 **Method**  
 POST
@@ -68,7 +68,7 @@ POST
 }
 ```
 
-## 验证token
+## 5. 验证token
 
 这个接口是资源服务端使用的, 用来验证token, **如果返回正确, 资源服务端还要验证下scope**
 
