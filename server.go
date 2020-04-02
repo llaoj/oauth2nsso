@@ -1,9 +1,7 @@
 package main
 
 import (
-    "fmt"
     "encoding/json"
-    // "log"
     "net/http"
     "net/url"
     "html/template"
@@ -65,9 +63,10 @@ func main() {
 }
 
 func passwordAuthorizationHandler(username, password string) (userID string, err error) {
-    if username == "test" && password == "test" {
-        userID = "test"
-    }
+    //自己实现验证逻辑
+    var user model.User
+    userID = user.GetUserIDByPwd(username, password)
+
     return
 }
 
@@ -108,35 +107,6 @@ func responseErrorHandler(re *errors.Response) {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-    // store, err := session.Start(nil, w, r)
-    // if err != nil {
-    //     http.Error(w, err.Error(), http.StatusInternalServerError)
-    //     return
-    // }
-    // if r.Method == "POST" {
-    //     if r.Form == nil {
-    //         if err := r.ParseForm(); err != nil {
-    //             http.Error(w, err.Error(), http.StatusInternalServerError)
-    //             return
-    //         }
-    //     }
-    //     if r.Form.Get("password") != "test" {
-    //         t, err := template.ParseFiles("tpl/login.html")
-    //         if err != nil{
-    //             http.Error(w, err.Error(), http.StatusInternalServerError)
-    //             return
-    //         }
-    //         data := struct{Error string}{"用户名密码错误 !"}
-    //         t.Execute(w,data)
-    //     }
-    //     store.Set("LoggedInUserID", r.Form.Get("username"))
-    //     store.Save()
-    //     // w.Header().Set("Location", "/consent")
-    //     w.Header().Set("Location", "/authorize")
-    //     w.WriteHeader(http.StatusFound)
-    //     return
-    // }
-
     t, err := template.ParseFiles("tpl/login.html")
     if err != nil{
         http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -144,25 +114,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     }
     t.Execute(w,nil)
 }
-
-// func consentHandler(w http.ResponseWriter, r *http.Request) {
-//  store, err := session.Start(nil, w, r)
-//  if err != nil {
-//      http.Error(w, err.Error(), http.StatusInternalServerError)
-//      return
-//  }
-//  if _, ok := store.Get("LoggedInUserID"); !ok {
-//      w.Header().Set("Location", "/login")
-//      w.WriteHeader(http.StatusFound)
-//      return
-//  }
-//  t, err := template.ParseFiles("tpl/consent.html")
-//  if err != nil{
-//      http.Error(w, err.Error(), http.StatusInternalServerError)
-//      return
-//     }
-//     t.Execute(w,nil)
-// }
 
 // 首先进入执行
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
@@ -234,7 +185,7 @@ func loginPasswordHandler(w http.ResponseWriter, r *http.Request) {
     
     //自己实现验证逻辑
     var user model.User
-    userID := user.ValidatePassword(r.Form.Get("username"), r.Form.Get("password"))
+    userID := user.GetUserIDByPwd(r.Form.Get("username"), r.Form.Get("password"))
     if userID == "" {
         t, err := template.ParseFiles("tpl/login.html")
         if err != nil{

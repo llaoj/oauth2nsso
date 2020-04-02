@@ -6,6 +6,7 @@ oauth2 server based on go-oauth2
 3.
 4.
 5. 验证access_token
+6. 刷新token
 ---
 
 ## 1. Flow: authorization_code
@@ -100,4 +101,41 @@ Response Body
 Status Code: 400
 Response Body
    invalid access token
+```
+
+## 6. 刷新token
+
+刷新access_token, 使用refresh_token换取access_token
+
+**Method**  
+POST
+
+**Url**  
+`http://localhost:9096/token`
+
+**Authorization**
+- basic auth
+- username: `client_id`
+- password: `client_secret`
+
+**Header**  
+`Content-Type: application/x-www-form-urlencoded`
+
+**Body参数说明**  
+
+|参数|类型|说明|
+|-|-|-|
+|grant_type|string|固定值`refresh_token`|
+|refresh_token|string|之前获取的refresh_token|
+
+**返回示例**
+
+```
+{
+    "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIyMjIyMjIiLCJleHAiOjE1ODU4MTc2MTMsInN1YiI6IjEifQ.yNpQIbklhtsSr5KEkJMAR4I30c85OEriYwAOpL_ukRBJ1qsSziT05HFN-kxVN1-qM18TzVEf8beCvugyhpgpsg",
+    "expires_in": 7200,
+    "refresh_token": "2AH_LQHPUYK8XML4LKMQKG",
+    "scope": "all",
+    "token_type": "Bearer"
+}
 ```

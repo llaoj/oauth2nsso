@@ -1,7 +1,6 @@
 package model
 
 import(
-    "fmt"
     "strconv"
     "crypto/sha256"
     "crypto/md5"
@@ -21,11 +20,11 @@ func (u *User) TableName() string {
     return "admin_user"
 }
 
-func (u *User) ValidatePassword(email, pass string) (userID string) {
+func (u *User) GetUserIDByPwd(email, pwd string) (userID string) {
     userID = ""
     db.Where("tel=?", email).Or("email=?", email).First(u)
     if u.UID > 0 {
-        bytes := sha256.Sum256([]byte(pass))
+        bytes := sha256.Sum256([]byte(pwd))
         hash := hex.EncodeToString(bytes[:])
         hash = hash + u.Salt
         bytes2 := md5.Sum([]byte(hash))
