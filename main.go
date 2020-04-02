@@ -6,6 +6,7 @@ import (
     "net/url"
     "html/template"
     "time"
+    "fmt"
 
     "github.com/dgrijalva/jwt-go"
     "github.com/go-session/session"
@@ -16,15 +17,21 @@ import (
     "gopkg.in/oauth2.v3/server"
     "gopkg.in/oauth2.v3/store"
 
+    "oauth2/utils/yaml"
     "oauth2/utils/log"
     "oauth2/model"
+
 )
 
 var srv *server.Server
 
 func main() {
+    yaml.Setup()
     log.Setup()
     model.Setup()
+
+    fmt.Printf("%+v \r\n",yaml.Config)
+
 
     //manager config
     manager := manage.NewDefaultManager()

@@ -1,0 +1,15 @@
+db:
+  - type: mysql
+    host: string
+    port: 3306
+    user: root
+    password: abc
+    dbname: test_lucasgchr_admin
+
+oauth2:
+  client:
+    - id: 2222222
+      secret: 22222222
+      name: 测试应用 
+      domain: http://localhost:9094
+  
