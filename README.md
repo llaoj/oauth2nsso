@@ -17,7 +17,7 @@ oauth2 server based on go-oauth2
 GET
 
 **请求示例**  
-`http://localhost:9096/authorize?client_id=222222&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9094/cb`
+`http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb`
 
 
 **参数说明**  
@@ -31,7 +31,7 @@ GET
 |redirect_uri|string|发放`code`用的回调uri,回调时会在uri后面跟上`?code=**&state=###`|
 
 **返回示例**  
-`302 http://localhost:9094/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz`
+`302 http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz`
 
 ### 1.2. 使用`code`交换`token`
 

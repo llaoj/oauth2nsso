@@ -6,7 +6,7 @@ import (
     "net/url"
     "html/template"
     "time"
-    "fmt"
+    // "fmt"
 
     "github.com/dgrijalva/jwt-go"
     "github.com/go-session/session"
@@ -23,15 +23,18 @@ import (
 
 )
 
+type LoginPageDate struct {
+    Client yaml.Client
+    Scope [] yaml.Scope
+    Error string
+}
+
 var srv *server.Server
 
 func main() {
     yaml.Setup()
     log.Setup()
     model.Setup()
-
-    fmt.Printf("%+v \r\n",yaml.Config)
-
 
     //manager config
     manager := manage.NewDefaultManager()
@@ -41,11 +44,13 @@ func main() {
     //generate jwt access token
     manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("00000000"), jwt.SigningMethodHS512))
     clientStore := store.NewClientStore()
-    clientStore.Set("222222", &models.Client{
-        ID:     "222222",
-        Secret: "22222222",
-        Domain: "http://localhost:9094",
-    })
+    for _, v := range yaml.Cfg.OAuth2.Client {
+        clientStore.Set(v.ID, &models.Client{
+            ID:     v.ID,
+            Secret: v.Secret,
+            Domain: v.Domain,
+        })
+    }
     manager.MapClientStorage(clientStore)
     // config oauth2 server
     srv = server.NewServer(server.NewConfig(), manager)
@@ -56,8 +61,6 @@ func main() {
 
     // http server
     http.HandleFunc("/login", loginHandler)
-    http.HandleFunc("/login/password", loginPasswordHandler)
-    // http.HandleFunc("/consent", consentHandler)
     http.HandleFunc("/authorize", authorizeHandler)
     http.HandleFunc("/token", tokenHandler)
     http.HandleFunc("/test", testHandler)
@@ -88,7 +91,7 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
         if r.Form == nil {
             r.ParseForm()
         }
-        store.Set("ReturnUri", r.Form)
+        store.Set("RequestForm", r.Form)
         store.Save()
 
         w.Header().Set("Location", "/login")
@@ -114,12 +117,64 @@ func responseErrorHandler(re *errors.Response) {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+    store, err := session.Start(nil, w, r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    var pageData LoginPageDate
+    if v, ok := store.Get("RequestForm"); ok {
+        form := v.(url.Values)
+        clientID := form.Get("client_id")
+        for _, v := range yaml.Cfg.OAuth2.Client {
+            if v.ID == clientID {
+                pageData.Client = v
+            }
+        }
+    }
+
+    if r.Method == "POST" {
+        if r.Form == nil {
+            if err := r.ParseForm(); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+            }
+        }
+        userID := ""
+
+        //账号密码验证
+        if r.Form.Get("type") == "password" {
+            //自己实现验证逻辑
+            var user model.User
+            userID = user.GetUserIDByPwd(r.Form.Get("username"), r.Form.Get("password"))
+            if userID == "" {
+                t, err := template.ParseFiles("tpl/login.html")
+                if err != nil{
+                    http.Error(w, err.Error(), http.StatusInternalServerError)
+                    return
+                }
+                pageData.Error = "用户名密码错误!"
+                t.Execute(w, pageData)
+            }
+        }
+
+        //扫码验证
+        //手机验证码验证
+
+        store.Set("LoggedInUserID", userID)
+        store.Save()
+        w.Header().Set("Location", "/authorize")
+        w.WriteHeader(http.StatusFound)
+        
+        return
+    }
+
     t, err := template.ParseFiles("tpl/login.html")
     if err != nil{
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-    t.Execute(w,nil)
+    t.Execute(w, pageData)
 }
 
 // 首先进入执行
@@ -129,14 +184,13 @@ func authorizeHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-
     var form url.Values
-    if v, ok := store.Get("ReturnUri"); ok {
+    if v, ok := store.Get("RequestForm"); ok {
         form = v.(url.Values)
     }
     r.Form = form
 
-    store.Delete("ReturnUri")
+    store.Delete("RequestForm")
     store.Save()
 
     err = srv.HandleAuthorizeRequest(w, r)
@@ -168,45 +222,4 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
     e := json.NewEncoder(w)
     e.SetIndent("", "  ")
     e.Encode(data)
-}
-
-
-func loginPasswordHandler(w http.ResponseWriter, r *http.Request) {
-    store, err := session.Start(nil, w, r)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-    if r.Method != "POST" {
-        http.Error(w, err.Error(), http.StatusMethodNotAllowed)
-        return
-    }
-
-    if r.Form == nil {
-        if err := r.ParseForm(); err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-    }
-    
-    //自己实现验证逻辑
-    var user model.User
-    userID := user.GetUserIDByPwd(r.Form.Get("username"), r.Form.Get("password"))
-    if userID == "" {
-        t, err := template.ParseFiles("tpl/login.html")
-        if err != nil{
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-        data := struct{Error string}{"用户名密码错误 !"}
-        t.Execute(w,data)
-    }
-    
-    store.Set("LoggedInUserID", userID)
-    store.Save()
-    w.Header().Set("Location", "/authorize")
-    w.WriteHeader(http.StatusFound)
-    
-    return
 }

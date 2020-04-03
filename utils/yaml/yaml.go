@@ -11,10 +11,13 @@ import (
 // Note: struct fields must be public in order for unmarshal to
 // correctly populate the data.
 type App struct {
-    Db []Db `yaml:"db"`
+    Db struct {
+        Default Db
+    }
     OAuth2 struct {
-        Client []OAuth2Client `yaml:"client"`
+        Client []Client `yaml:"client"`
     } `yaml:"oauth2"`
+    Scope []Scope `yaml:"scope"`
 }
 
 type Db struct {
@@ -23,17 +26,22 @@ type Db struct {
     Port int `yaml:"port"`
     User string `yaml:"user"`
     Password string `yaml:"password"`
-    Name string `yaml:"name"`
+    DbName string `yaml:"dbname"`
 }
 
-type OAuth2Client struct {
+type Client struct {
     ID string `yaml:"id"`
     Secret string `yaml:"secret"`
     Name string `yaml:"name"`
     Domain string `yaml:"domain"`
 }
 
-var Config App
+type Scope struct {
+    ID string `yaml:"id"`
+    Description string `yaml:"description"`
+}
+
+var Cfg App
 
 func Setup() {
     content, err := ioutil.ReadFile("app.yaml")
@@ -41,7 +49,7 @@ func Setup() {
         log.Fatalf("error: %v", err)
     }
 
-    err = yaml.Unmarshal(content, &Config)
+    err = yaml.Unmarshal(content, &Cfg)
     if err != nil {
         log.Fatalf("error: %v", err)
     }

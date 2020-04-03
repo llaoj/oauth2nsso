@@ -35,7 +35,7 @@
           </ul>
           <div class="tab-content" id="myTabContent" style="margin-top:30px">
             <div class="tab-pane fade show active" id="tabPassword" role="tabpanel" aria-labelledby="home-tab">
-              {{if .}}
+              {{if .Error}}
               <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 {{.Error}}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -43,7 +43,8 @@
                 </button>
               </div>
               {{end}}
-              <form action="/login/password" method="POST">
+              <form action="/login" method="POST">
+                <input type="hidden" name="type" value="password">
                 <div class="form-group">
                   <label class="sr-only" for="username">用户名</label>
                   <div class="input-group">
@@ -71,7 +72,7 @@
         </div>
         <div class="col align-self-center">
           <ul class="list-unstyled">
-            <li>Nulla 将获得以下权限：
+            <li>{{.Client.Name}} 将获得以下权限：
               <ul>
                 <li>获得您的昵称、头像、性别、手机等个人信息</li>
               </ul>
