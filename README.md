@@ -17,7 +17,10 @@ oauth2 server based on go-oauth2
 GET
 
 **请求示例**  
-`http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb`
+```
+http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb
+http://localhost:9096/authorize?client_id=test_client_2&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9094/cb
+```
 
 
 **参数说明**  

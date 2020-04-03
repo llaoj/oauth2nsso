@@ -25,7 +25,6 @@ import (
 
 type LoginPageDate struct {
     Client yaml.Client
-    Scope [] yaml.Scope
     Error string
 }
 
@@ -122,14 +121,19 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
+
+    form, ok := store.Get("RequestForm")
+    if !ok {
+        http.Error(w, "invalid_request", http.StatusBadRequest)
+        return
+    }
+
     var pageData LoginPageDate
-    if v, ok := store.Get("RequestForm"); ok {
-        form := v.(url.Values)
-        clientID := form.Get("client_id")
-        for _, v := range yaml.Cfg.OAuth2.Client {
-            if v.ID == clientID {
-                pageData.Client = v
-            }
+    //当前登录客户端
+    clientID := form.(url.Values).Get("client_id")
+    for _, v := range yaml.Cfg.OAuth2.Client {
+        if v.ID == clientID {
+            pageData.Client = v
         }
     }
 
@@ -140,7 +144,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
                 return
             }
         }
-        userID := ""
+        var userID string
 
         //账号密码验证
         if r.Form.Get("type") == "password" {
@@ -155,6 +159,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
                 }
                 pageData.Error = "用户名密码错误!"
                 t.Execute(w, pageData)
+
+                return
             }
         }
 
@@ -186,7 +192,10 @@ func authorizeHandler(w http.ResponseWriter, r *http.Request) {
     }
     var form url.Values
     if v, ok := store.Get("RequestForm"); ok {
-        form = v.(url.Values)
+        r.ParseForm()
+        if r.Form.Get("client_id") == "" {
+            form = v.(url.Values)
+        }
     }
     r.Form = form
 
