@@ -13,10 +13,10 @@
   <body>
     <div class="container">
       <!-- Image and text -->
-      <nav class="navbar navbar-dark bg-dark">
+      <nav class="navbar navbar-light bg-light">
         <a class="navbar-brand" href="#">
-          <i class="d-inline-block align-top" width="30" height="30" stroke-width="1.5" data-feather="gitlab"></i>
-          GitLab
+          <img src="/static/icon/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+          Bootstrap
         </a>
       </nav>
       <div class="row" style="margin-top:20px">
@@ -27,10 +27,7 @@
               <a class="nav-link active" id="home-tab" data-toggle="tab" href="#tabPassword" role="tab" aria-controls="home" aria-selected="true">密码登录</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="profile-tab" data-toggle="tab" href="#tabQr" role="tab" aria-controls="profile" aria-selected="false">扫码登录</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="contact-tab" data-toggle="tab" href="#tabMobile" role="tab" aria-controls="contact" aria-selected="false">手机验证码</a>
+              <a class="nav-link disabled" id="contact-tab" data-toggle="tab" href="#tabMobile" role="tab" aria-controls="contact" aria-selected="false">手机验证码</a>
             </li>
           </ul>
           <div class="tab-content" id="myTabContent" style="margin-top:30px">
@@ -66,16 +63,15 @@
                 <button type="submit" class="btn btn-primary">授权登录</button>
               </form>
             </div>
-            <div class="tab-pane fade" id="tabQr" role="tabpanel" aria-labelledby="profile-tab">...</div>
             <div class="tab-pane fade" id="tabMobile" role="tabpanel" aria-labelledby="contact-tab">...</div>
           </div>
         </div>
         <div class="col align-self-center">
           <ul class="list-unstyled">
             <li><strong>{{.Client.Name}}</strong> 将获得访问您以下资源的权限：
-              <ul>
-                <li>您的账号、角色、权限等账户信息</li>
-                <li>您的昵称、头像、性别、手机等个人信息</li>
+              <ul style="font-size: 13px;margin-top: 10px;">
+                <li>账号、角色、权限等账户信息</li>
+                <li>昵称、头像、性别、手机等个人信息</li>
               </ul>
             </li>
           </ul>
