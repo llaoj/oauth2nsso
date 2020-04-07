@@ -5,7 +5,7 @@ oauth2 server based on go-oauth2
 2. implicit
 3. password
 4. client credentials
-5. 验证access_token
+5. 验证access_token (资源端)
 6. 刷新token
 
 **相关配置**
