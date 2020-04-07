@@ -17,11 +17,3 @@ oauth2:
       secret: test_secret_2
       name: 测试应用2 
       domain: http://localhost:9094
-
-scope:
-  - id: all
-    description: 用户基本信息,账号,手机号,权限,角色等信息
-  - id: userinfo
-    description: 用户基本信息
-  - id: accountinfo
-    description: 账号信息,手机,权限角色等信息

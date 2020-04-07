@@ -17,7 +17,6 @@ type App struct {
     OAuth2 struct {
         Client []Client `yaml:"client"`
     } `yaml:"oauth2"`
-    Scope []Scope `yaml:"scope"`
 }
 
 type Db struct {
@@ -34,11 +33,6 @@ type Client struct {
     Secret string `yaml:"secret"`
     Name string `yaml:"name"`
     Domain string `yaml:"domain"`
-}
-
-type Scope struct {
-    ID string `yaml:"id"`
-    Description string `yaml:"description"`
 }
 
 var Cfg App
