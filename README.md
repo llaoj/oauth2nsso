@@ -2,11 +2,29 @@
 oauth2 server based on go-oauth2
 实现了auth2的四种工作流程
 1. authorization_code
-2.
-3.
-4.
+2. implicit
+3. password
+4. client credentials
 5. 验证access_token
 6. 刷新token
+
+**相关配置**
+
+implicit 和 client credentials 模式是不会生成refresh token的
+刷新token时会删除原有的token重新发布新的token.
+详情如下:
+
+```
+var (
+  DefaultCodeExp               = time.Minute * 10
+  DefaultAuthorizeCodeTokenCfg = &Config{AccessTokenExp: time.Hour * 2, RefreshTokenExp: time.Hour * 24 * 3, IsGenerateRefresh: true}
+  DefaultImplicitTokenCfg      = &Config{AccessTokenExp: time.Hour * 1}
+  DefaultPasswordTokenCfg      = &Config{AccessTokenExp: time.Hour * 2, RefreshTokenExp: time.Hour * 24 * 7, IsGenerateRefresh: true}
+  DefaultClientTokenCfg        = &Config{AccessTokenExp: time.Hour * 2}
+  DefaultRefreshTokenCfg       = &RefreshingConfig{IsGenerateRefresh: true, IsRemoveAccess: true, IsRemoveRefreshing: true}
+)
+```
+
 ---
 
 ## 1. Flow: authorization_code
@@ -71,6 +89,31 @@ POST
     "token_type": "Bearer"
 }
 ```
+
+### 1.3 logout
+
+退出登录状态, 跳转到指定链接(redirect_uri)
+
+**Method**  
+GET
+
+**Url**  
+`http://localhost:9096/logout?redirect_uri=xxx`
+
+**请求示例**  
+
+这里的返回地址建议使用第一步(1.1)的地址.直接跳转到登录页面
+
+
+```
+http://localhost:9096/logout?redirect_uri=http%3a%2f%2flocalhost%3a9096%2fauthorize%3fclient_id%3dtest_client_1%26response_type%3dcode%26scope%3dall%26state%3dxyz%26redirect_uri%3dhttp%3a%2f%2flocalhost%3a9093%2fcb
+```
+
+## 2.Flow: implicit
+
+## 3.Flow: password
+
+## 4.Flow: client credentials
 
 ## 5. 验证token
 

@@ -60,6 +60,7 @@ func main() {
 
     // http server
     http.HandleFunc("/login", loginHandler)
+    http.HandleFunc("/logout", logoutHandler)
     http.HandleFunc("/authorize", authorizeHandler)
     http.HandleFunc("/token", tokenHandler)
     http.HandleFunc("/test", testHandler)
@@ -181,6 +182,30 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
     t.Execute(w, pageData)
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Form == nil {
+        if err := r.ParseForm(); err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+    }
+    redirectURI := r.Form.Get("redirect_uri")
+    if _, err := url.Parse(redirectURI); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+    }
+
+    store, err := session.Start(nil, w, r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    store.Delete("LoggedInUserID")
+    store.Save()
+
+    w.Header().Set("Location", redirectURI)
+    w.WriteHeader(http.StatusFound)
 }
 
 // 首先进入执行
