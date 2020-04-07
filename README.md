@@ -100,10 +100,13 @@ GET
 **Url**  
 `http://localhost:9096/logout?redirect_uri=xxx`
 
+**参数说明**  
+
+|参数|类型|说明|
+|-|-|-|
+|redirect_uri|string|退出登录后跳转到的地址,建议使用1.1所生成的地址, 需要urlencode|
+
 **请求示例**  
-
-这里的返回地址建议使用第一步(1.1)的地址.直接跳转到登录页面
-
 
 ```
 http://localhost:9096/logout?redirect_uri=http%3a%2f%2flocalhost%3a9096%2fauthorize%3fclient_id%3dtest_client_1%26response_type%3dcode%26scope%3dall%26state%3dxyz%26redirect_uri%3dhttp%3a%2f%2flocalhost%3a9093%2fcb
