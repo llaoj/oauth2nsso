@@ -16,7 +16,7 @@ import (
     "gopkg.in/oauth2.v3/models"
     "gopkg.in/oauth2.v3/server"
     "gopkg.in/oauth2.v3/store"
-        "github.com/go-redis/redis"
+    "github.com/go-redis/redis"
     oredis "gopkg.in/go-oauth2/redis.v3"
 
     "oauth2/utils/yaml"
@@ -67,9 +67,9 @@ func main() {
     srv.SetResponseErrorHandler(responseErrorHandler)
 
     // http server
+    http.HandleFunc("/authorize", authorizeHandler)
     http.HandleFunc("/login", loginHandler)
     http.HandleFunc("/logout", logoutHandler)
-    http.HandleFunc("/authorize", authorizeHandler)
     http.HandleFunc("/token", tokenHandler)
     http.HandleFunc("/test", testHandler)
     http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
@@ -122,6 +122,31 @@ func internalErrorHandler(err error) (re *errors.Response) {
 
 func responseErrorHandler(re *errors.Response) {
     log.App.Error("Response Error:", re.Error.Error())
+}
+
+// 首先进入执行
+func authorizeHandler(w http.ResponseWriter, r *http.Request) {
+    store, err := session.Start(nil, w, r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    var form url.Values
+    if v, ok := store.Get("RequestForm"); ok {
+        r.ParseForm()
+        if r.Form.Get("client_id") == "" {
+            form = v.(url.Values)
+        }
+    }
+    r.Form = form
+
+    store.Delete("RequestForm")
+    store.Save()
+
+    err = srv.HandleAuthorizeRequest(w, r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+    }
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -214,31 +239,6 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
     w.Header().Set("Location", redirectURI)
     w.WriteHeader(http.StatusFound)
-}
-
-// 首先进入执行
-func authorizeHandler(w http.ResponseWriter, r *http.Request) {
-    store, err := session.Start(nil, w, r)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-    var form url.Values
-    if v, ok := store.Get("RequestForm"); ok {
-        r.ParseForm()
-        if r.Form.Get("client_id") == "" {
-            form = v.(url.Values)
-        }
-    }
-    r.Form = form
-
-    store.Delete("RequestForm")
-    store.Save()
-
-    err = srv.HandleAuthorizeRequest(w, r)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-    }
 }
 
 func tokenHandler(w http.ResponseWriter, r *http.Request) {
