@@ -6,7 +6,11 @@ db:
     user: 123
     password: abc
     dbname: oauth2
-
+redis:
+  default:
+    addr: 192.168.33.10:6379
+    password: 
+    db: 0
 oauth2:
   client:
     - id: test_client_1

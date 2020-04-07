@@ -14,6 +14,9 @@ type App struct {
     Db struct {
         Default Db
     }
+    Redis struct {
+        Default Redis
+    }
     OAuth2 struct {
         Client []Client `yaml:"client"`
     } `yaml:"oauth2"`
@@ -26,6 +29,12 @@ type Db struct {
     User string `yaml:"user"`
     Password string `yaml:"password"`
     DbName string `yaml:"dbname"`
+}
+
+type Redis struct {
+    Addr string `yaml:"addr"`
+    Password string `yaml:"password"`
+    Db int `yaml:"db"`
 }
 
 type Client struct {
