@@ -10,6 +10,7 @@ import (
 
     "github.com/dgrijalva/jwt-go"
     "github.com/go-session/session"
+    sredis "github.com/go-session/redis"
     "gopkg.in/oauth2.v3/errors"
     "gopkg.in/oauth2.v3/generates"
     "gopkg.in/oauth2.v3/manage"
@@ -37,18 +38,26 @@ func main() {
     log.Setup()
     model.Setup()
 
+    //session init
+    session.InitManager(
+        session.SetStore(sredis.NewRedisStore(&sredis.Options{
+            Addr: yaml.Cfg.Redis.Default.Addr,
+            DB: yaml.Cfg.Redis.Default.Db,
+        })),
+    )
+
     //manager config
     manager := manage.NewDefaultManager()
     manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
     //token store
-    // manager.MustTokenStorage(store.NewMemoryTokenStore())
-    // use redis token store
+    //manager.MustTokenStorage(store.NewMemoryTokenStore())
+    //use redis token store
     manager.MapTokenStorage(oredis.NewRedisStore(&redis.Options{
         Addr: yaml.Cfg.Redis.Default.Addr,
         DB: yaml.Cfg.Redis.Default.Db,
     }))
 
-    //generate jwt access token
+    //access token generate method: jwt
     manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("00000000"), jwt.SigningMethodHS512))
     clientStore := store.NewClientStore()
     for _, v := range yaml.Cfg.OAuth2.Client {
@@ -59,14 +68,14 @@ func main() {
         })
     }
     manager.MapClientStorage(clientStore)
-    // config oauth2 server
+    //config oauth2 server
     srv = server.NewServer(server.NewConfig(), manager)
     srv.SetPasswordAuthorizationHandler(passwordAuthorizationHandler)
     srv.SetUserAuthorizationHandler(userAuthorizeHandler)
     srv.SetInternalErrorHandler(internalErrorHandler)
     srv.SetResponseErrorHandler(responseErrorHandler)
 
-    // http server
+    //http server
     http.HandleFunc("/authorize", authorizeHandler)
     http.HandleFunc("/login", loginHandler)
     http.HandleFunc("/logout", logoutHandler)
