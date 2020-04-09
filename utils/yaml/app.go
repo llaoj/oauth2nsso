@@ -3,6 +3,10 @@ package yaml
 // Note: struct fields must be public in order for unmarshal to
 // correctly populate the data.
 type App struct {
+    Session struct{
+        Name string `yaml:"name"`
+        SecretKey string `yaml:"secret_key"`
+    } `yaml:"session"`
     Db struct {
         Default Db
     }

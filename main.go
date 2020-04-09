@@ -1,16 +1,13 @@
 package main
 
 import (
-    "encoding/json"
-    "net/http"
-    "net/url"
-    "html/template"
     "time"
-    // "fmt"
+    "net/url"
+    "net/http"
+    "encoding/json"
+    "html/template"
 
     "github.com/dgrijalva/jwt-go"
-    "github.com/go-session/session"
-    sredis "github.com/go-session/redis"
     "gopkg.in/oauth2.v3/errors"
     "gopkg.in/oauth2.v3/generates"
     "gopkg.in/oauth2.v3/manage"
@@ -20,16 +17,11 @@ import (
     "github.com/go-redis/redis"
     oredis "gopkg.in/go-oauth2/redis.v3"
 
-    "oauth2/utils/yaml"
-    "oauth2/utils/log"
     "oauth2/model"
-
+    "oauth2/utils/log"
+    "oauth2/utils/yaml"
+    "oauth2/utils/session"
 )
-
-type LoginPageDate struct {
-    Client yaml.Client
-    Error string
-}
 
 var srv *server.Server
 
@@ -37,27 +29,20 @@ func main() {
     yaml.Setup()
     log.Setup()
     model.Setup()
+    session.Setup()
 
-    //session init
-    session.InitManager(
-        session.SetStore(sredis.NewRedisStore(&sredis.Options{
-            Addr: yaml.Cfg.Redis.Default.Addr,
-            DB: yaml.Cfg.Redis.Default.Db,
-        })),
-    )
-
-    //manager config
+    // manager config
     manager := manage.NewDefaultManager()
     manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
-    //token store
-    //manager.MustTokenStorage(store.NewMemoryTokenStore())
-    //use redis token store
+    // token store
+    // manager.MustTokenStorage(store.NewMemoryTokenStore())
+    // use redis token store
     manager.MapTokenStorage(oredis.NewRedisStore(&redis.Options{
         Addr: yaml.Cfg.Redis.Default.Addr,
         DB: yaml.Cfg.Redis.Default.Db,
     }))
 
-    //access token generate method: jwt
+    // access token generate method: jwt
     manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("00000000"), jwt.SigningMethodHS512))
     clientStore := store.NewClientStore()
     for _, v := range yaml.Cfg.OAuth2.Client {
@@ -68,14 +53,14 @@ func main() {
         })
     }
     manager.MapClientStorage(clientStore)
-    //config oauth2 server
+    // config oauth2 server
     srv = server.NewServer(server.NewConfig(), manager)
     srv.SetPasswordAuthorizationHandler(passwordAuthorizationHandler)
     srv.SetUserAuthorizationHandler(userAuthorizeHandler)
     srv.SetInternalErrorHandler(internalErrorHandler)
     srv.SetResponseErrorHandler(responseErrorHandler)
 
-    //http server
+    // http server
     http.HandleFunc("/authorize", authorizeHandler)
     http.HandleFunc("/login", loginHandler)
     http.HandleFunc("/logout", logoutHandler)
@@ -90,7 +75,7 @@ func main() {
 }
 
 func passwordAuthorizationHandler(username, password string) (userID string, err error) {
-    //自己实现验证逻辑
+    // 自己实现验证逻辑
     var user model.User
     userID = user.GetUserIDByPwd(username, password)
 
@@ -98,25 +83,24 @@ func passwordAuthorizationHandler(username, password string) (userID string, err
 }
 
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
-    store, err := session.Start(nil, w, r)
-    if err != nil {
-        return
-    }
-
-    uid, ok := store.Get("LoggedInUserID")
-    if !ok {
-        if r.Form == nil {
+    v, _ := session.Get(r, "LoggedInUserID")
+    if v == nil {
+       if r.Form == nil {
             r.ParseForm()
         }
-        store.Set("RequestForm", r.Form)
-        store.Save()
-
+        err = session.Set(w, r, "RequestForm", r.Form)
+        if err != nil {
+            log.App.Error(err.Error())
+            return
+        }
+        
         w.Header().Set("Location", "/login")
         w.WriteHeader(http.StatusFound)
+
         return
     }
+    userID = v.(string)
 
-    userID = uid.(string)
     // 不记住用户
     // store.Delete("LoggedInUserID")
     // store.Save()
@@ -126,6 +110,7 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 
 func internalErrorHandler(err error) (re *errors.Response) {
     log.App.Error("Internal Error:", err.Error())
+    
     return
 }
 
@@ -135,45 +120,44 @@ func responseErrorHandler(re *errors.Response) {
 
 // 首先进入执行
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
-    store, err := session.Start(nil, w, r)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
     var form url.Values
-    if v, ok := store.Get("RequestForm"); ok {
-        r.ParseForm()
+    if v, _ := session.Get(r, "RequestForm"); v != nil {
+       r.ParseForm()
         if r.Form.Get("client_id") == "" {
             form = v.(url.Values)
-        }
+        } 
     }
     r.Form = form
 
-    store.Delete("RequestForm")
-    store.Save()
+    if err := session.Delete(w, r, "RequestForm"); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-    err = srv.HandleAuthorizeRequest(w, r)
-    if err != nil {
+    if err := srv.HandleAuthorizeRequest(w, r); err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
     }
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-    store, err := session.Start(nil, w, r)
+    form, err := session.Get(r, "RequestForm")
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-
-    form, ok := store.Get("RequestForm")
-    if !ok {
-        http.Error(w, "invalid_request", http.StatusBadRequest)
+    if form == nil {
+        http.Error(w, "invalid request", http.StatusBadRequest)
         return
     }
-
-    var pageData LoginPageDate
-    //当前登录客户端
+    // 当前登录client
     clientID := form.(url.Values).Get("client_id")
+
+    // 页面数据结构
+    var pageData struct {
+        Client yaml.Client
+        Error string
+    }
+
     for _, v := range yaml.Cfg.OAuth2.Client {
         if v.ID == clientID {
             pageData.Client = v
@@ -210,8 +194,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         //扫码验证
         //手机验证码验证
 
-        store.Set("LoggedInUserID", userID)
-        store.Save()
+        if err := session.Set(w, r, "LoggedInUserID", userID); err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
         w.Header().Set("Location", "/authorize")
         w.WriteHeader(http.StatusFound)
         
@@ -238,13 +225,10 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, err.Error(), http.StatusBadRequest)
     }
 
-    store, err := session.Start(nil, w, r)
-    if err != nil {
+    if err := session.Delete(w, r, "LoggedInUserID"); err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-    store.Delete("LoggedInUserID")
-    store.Save()
 
     w.Header().Set("Location", redirectURI)
     w.WriteHeader(http.StatusFound)

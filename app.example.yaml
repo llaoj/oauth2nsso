@@ -1,3 +1,6 @@
+session:
+  name: session_id
+  secret_key: abc123
 db:
   default:
     type: mysql
