@@ -6,20 +6,20 @@ import (
     "net/url"
 
     "encoding/gob"
-    // "github.com/gorilla/sessions"
-	"gopkg.in/boj/redistore.v1"
+    "github.com/gorilla/sessions"
+	// "gopkg.in/boj/redistore.v1"
 
 	"oauth2/utils/yaml"
 )
 
-// var store *sessions.CookieStore
-var store *redistore.RediStore 
+var store *sessions.CookieStore
+// var store *redistore.RediStore 
 
 func Setup(){
     gob.Register(url.Values{})
 
-    // store = sessions.NewCookieStore([]byte("SESSION_KEY"))
-    store, _ = redistore.NewRediStore(yaml.Cfg.Redis.Default.Db, "tcp", yaml.Cfg.Redis.Default.Addr, "", []byte("secret-key"))
+    store = sessions.NewCookieStore([]byte(yaml.Cfg.Session.SecretKey))
+    // store, _ = redistore.NewRediStore(yaml.Cfg.Redis.Default.Db, "tcp", yaml.Cfg.Redis.Default.Addr, "", []byte("secret-key"))
     // if err != nil {
     //     log.Fatal(err)
 
