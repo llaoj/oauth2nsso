@@ -19,6 +19,11 @@ func Setup(){
     gob.Register(url.Values{})
 
     store = sessions.NewCookieStore([]byte(yaml.Cfg.Session.SecretKey))
+    store.Options = &sessions.Options{
+        Path:     "/",
+        MaxAge:   60 * 20,
+        HttpOnly: true,
+    }
     // store, _ = redistore.NewRediStore(yaml.Cfg.Redis.Default.Db, "tcp", yaml.Cfg.Redis.Default.Addr, "", []byte("secret-key"))
     // if err != nil {
     //     log.Fatal(err)
