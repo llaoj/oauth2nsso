@@ -1,12 +1,12 @@
 session:
   name: session_id
-  secret_key: abc123
+  secret_key: abcxyz
 db:
   default:
     type: mysql
     host: string
     port: 3306
-    user: 123
+    user: root
     password: abc
     dbname: oauth2
 redis:
@@ -16,11 +16,7 @@ redis:
     db: 0
 oauth2:
   client:
-    - id: test_client_1
-      secret: test_secret_1
-      name: 测试应用1 
-      domain: http://localhost:9093
-    - id: test_client_2
-      secret: test_secret_2
-      name: 测试应用2 
-      domain: http://localhost:9094
+    - id: abc
+      secret: abcdefghigklmnopqrstuvwxyz
+      name: 测试应用
+      domain: http://abc.xyz
