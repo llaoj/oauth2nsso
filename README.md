@@ -6,7 +6,7 @@
 
 **实现了auth2的四种工作流程**
 
-1. [authorization_code](##1.authorization_code)
+1. [authorization_code](##1-authorization_code)
 2. implicit
 3. password
 4. client credentials
@@ -15,7 +15,7 @@
 
 5. 验证access_token (资源端)
 6. 刷新token
-7. 专门为SSO开发的logout
+7. [专门为SSO开发的logout](##7-logout)
 
 ## 配置说明
 
@@ -35,9 +35,9 @@ var (
 
 ---
 
-## 1.authorization_code
+## 1-authorization_code
 
-### 1.1.获取授权code
+### 1-1-获取授权code
 
 **方法**
 
@@ -72,7 +72,7 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 
 这里会返回请求时设置的`state`, 请在进行下一步之前验证它
 
-### 1.2.使用`code`交换`token`
+### 1-2-使用`code`交换`token`
 
 **Method**
 
@@ -111,11 +111,11 @@ POST
 }
 ```
 
-## 2.implicit
+## 2-implicit
 
-## 3.password
+## 3-password
 
-## 4.client-credentials
+## 4-client-credentials
 
 使用在oauth2服务器注册的client_id 和 client_secret 获取 access_token,
 发出 API 请求时，它应将access_token作为 Bearer 令牌传递到 Authorization 请求头中。
@@ -156,7 +156,7 @@ POST
 ```
 
 
-## 5. 验证token
+## 5-验证token
 
 **接口说明**
 
@@ -196,7 +196,7 @@ Response Body
    invalid access token
 ```
 
-## 6. 刷新token
+## 6-刷新token
 
 刷新access_token, 使用refresh_token换取access_token
 
@@ -238,7 +238,7 @@ POST
 ```
 
 
-## 7 logout
+## 7-logout
 
 专门为SSO开发
 主要是销毁浏览器的会话, 退出登录状态, 跳转到指定链接(redirect_uri)
