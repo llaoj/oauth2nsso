@@ -6,7 +6,7 @@
 
 **实现了auth2的四种工作流程**
 
-1. [authorization_code]
+1. authorization_code
 2. implicit
 3. password
 4. client credentials
@@ -15,7 +15,7 @@
 
 5. 验证access_token (资源端)
 6. 刷新token
-7. [专门为SSO开发的logout]
+7. 专门为SSO开发的logout
 
 ## 配置说明
 
