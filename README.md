@@ -6,7 +6,7 @@
 
 **实现了auth2的四种工作流程**
 
-1. [authorization_code](##1-authorization_code)
+1. [authorization_code]
 2. implicit
 3. password
 4. client credentials
@@ -15,7 +15,7 @@
 
 5. 验证access_token (资源端)
 6. 刷新token
-7. [专门为SSO开发的logout](##7-logout)
+7. [专门为SSO开发的logout]
 
 ## 配置说明
 
@@ -39,20 +39,15 @@ var (
 
 ### 1-1-获取授权code
 
-**方法**
+**请求方式**
 
-GET
-
-**Url**
-
-`/authorize`
+`GET` `/authorize`
 
 **请求示例**
 
 ```
 http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=https://localhost:9093/cb
 ```
-
 
 **参数说明**  
 
@@ -74,15 +69,11 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 
 ### 1-2-使用`code`交换`token`
 
-**Method**
+**请求方式**
 
-POST
+`POST` `/token`
 
-**Url**
-
-`/token`
-
-**Authorization**
+**请求头 Authorization**
 
 - basic auth
 - username: `client_id`
@@ -120,15 +111,11 @@ POST
 使用在oauth2服务器注册的client_id 和 client_secret 获取 access_token,
 发出 API 请求时，它应将access_token作为 Bearer 令牌传递到 Authorization 请求头中。
 
-**请求方法**
+**请求方式**
 
-POST
+`POST` `/token`
 
-**Url**
-
-`/token`
-
-**Authorization**
+**请求头 Authorization**
 
 - basic auth
 - username: `client_id`
@@ -160,17 +147,13 @@ POST
 
 **接口说明**
 
-这个接口是资源端使用的, 用来验证 `access_token` 和 `scope` .
+这个接口是资源端使用的, 用来验证 `access_token` `scope` 和 `domain` .
 
-**请求方法**
+**请求方式**
 
-GET
+`GET`  `/test`
 
-**Url**
-
-`/test`
-
-**Authorization**
+**请求头 Authorization**
 
 - Bearer Token
 - Token: `access_token`
@@ -181,14 +164,13 @@ GET
 Status Code: 200
 Response Body
 {
-  "client_id": "222222",
-  "expires_in": 7191,
+  "client_id": "test_client_1",
+  "domain": "https://127.0.0.1:9093",
+  "expires_in": 7188,
   "scope": "all",
-  "user_id": "test"
+  "user_id": ""
 }
 ```
-
-注意, 如果token正确, 还会一起返回权限范围`scope`, 这里需要验证下, 请求方是否拥有该权限.
 
 ```
 Status Code: 400
@@ -196,19 +178,19 @@ Response Body
    invalid access token
 ```
 
+**注意** 
+
+如果token正确, 接口还会一起返回权限范围`scope` client的注册domain, 这里推荐验证下, 请求方的身份和权限.
+
 ## 6-刷新token
 
 刷新access_token, 使用refresh_token换取access_token
 
-**Method**
+**请求方式**
 
-POST
+`POST` `/token`
 
-**Url**
-
-`/token`
-
-**Authorization**
+**请求头 Authorization**
 
 - basic auth
 - username: `client_id`
@@ -243,13 +225,9 @@ POST
 专门为SSO开发
 主要是销毁浏览器的会话, 退出登录状态, 跳转到指定链接(redirect_uri)
 
-**Method**
+**请求方式**
 
-GET
-
-**Url**
-
-`/logout?redirect_uri=xxx`
+`GET` `/logout?redirect_uri=xxx`
 
 **参数说明**  
 
