@@ -1,12 +1,5 @@
 package model
 
-import(
-    "strconv"
-    "crypto/sha256"
-    "crypto/md5"
-    "encoding/hex"
-)
-
 type User struct {
     ID int `gorm:"primary_key" json:"id"`
     Name string `json:"name"`
