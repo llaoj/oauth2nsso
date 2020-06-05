@@ -9,7 +9,7 @@ import (
     "github.com/gorilla/sessions"
 	// "gopkg.in/boj/redistore.v1"
 
-	"oauth2/utils/yaml"
+	"oauth2/config"
 )
 
 var store *sessions.CookieStore
@@ -18,7 +18,7 @@ var store *sessions.CookieStore
 func Setup(){
     gob.Register(url.Values{})
 
-    store = sessions.NewCookieStore([]byte(yaml.Cfg.Session.SecretKey))
+    store = sessions.NewCookieStore([]byte(config.Get().Session.SecretKey))
     store.Options = &sessions.Options{
         Path:     "/",
         MaxAge:   60 * 20,
@@ -34,7 +34,7 @@ func Setup(){
 
 func Get(r *http.Request, name string) (val interface{}, err error) {
     // Get a session.
-    session, err := store.Get(r, yaml.Cfg.Session.Name)
+    session, err := store.Get(r, config.Get().Session.Name)
     if err != nil {
         return
     }
@@ -46,7 +46,7 @@ func Get(r *http.Request, name string) (val interface{}, err error) {
 
 func Set(w http.ResponseWriter, r *http.Request, name string, val interface{}) (err error) {
     // Get a session.
-    session, err := store.Get(r, yaml.Cfg.Session.Name)
+    session, err := store.Get(r, config.Get().Session.Name)
     if err != nil {
         return
     }
@@ -59,7 +59,7 @@ func Set(w http.ResponseWriter, r *http.Request, name string, val interface{}) (
 
 func Delete(w http.ResponseWriter, r *http.Request, name string) (err error) {
     // Get a session.
-    session, err := store.Get(r, yaml.Cfg.Session.Name)
+    session, err := store.Get(r, config.Get().Session.Name)
     if err != nil {
         return
     }

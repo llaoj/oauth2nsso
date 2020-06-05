@@ -1,4 +1,4 @@
-package yaml
+package config
 
 // Note: struct fields must be public in order for unmarshal to
 // correctly populate the data.
@@ -38,4 +38,10 @@ type Client struct {
     Secret string `yaml:"secret"`
     Name string `yaml:"name"`
     Domain string `yaml:"domain"`
+    Scope []Scope `yaml:"scope"`
+}
+
+type Scope struct {
+    ID string `yaml:"id"`
+    Title string `yaml:"title"`
 }

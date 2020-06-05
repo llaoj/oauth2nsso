@@ -15,8 +15,8 @@
     <nav class="navbar navbar-light bg-light">
       <div class="container">
         <a class="navbar-brand" href="#">
-          <img src="/static/icon/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-          Bootstrap
+          <img src="/static/icon/feather.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+          gooauth
         </a>
       </div>
     </nav>
@@ -62,7 +62,7 @@
                     <input type="password" class="form-control" id="password" name="password" aria-describedby="inputGroupPrepend3" required>
                   </div>
                 </div>
-                <button type="submit" class="btn btn-primary">登录授权</button>
+                <button type="submit" class="btn btn-primary">授权登录</button>
               </form>
             </div>
             <div class="tab-pane fade" id="tabMobile" role="tabpanel" aria-labelledby="contact-tab">...</div>
@@ -72,8 +72,9 @@
           <ul class="list-unstyled">
             <li><strong>{{.Client.Name}}</strong> 将获得访问您以下资源的权限：
               <ul style="font-size: 13px;margin-top: 10px;">
-                <li>账号、角色、权限等账户信息</li>
-                <li>昵称、头像、性别、手机等个人信息</li>
+                {{range .Scope}} 
+                  <li>{{.Title}}</li>
+                {{end}}
               </ul>
             </li>
           </ul>

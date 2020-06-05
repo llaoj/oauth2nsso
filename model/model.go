@@ -8,18 +8,19 @@ import (
     "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
 
-    "oauth2/utils/yaml"
+    "oauth2/config"
 )
 
 var db *gorm.DB
 
 func Setup() {
     var err error
-    db, err = gorm.Open(yaml.Cfg.Db.Default.Type, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", 
-        yaml.Cfg.Db.Default.User, 
-        yaml.Cfg.Db.Default.Password, 
-        yaml.Cfg.Db.Default.Host, 
-        yaml.Cfg.Db.Default.DbName))
+    cfg := config.Get();
+    db, err = gorm.Open(cfg.Db.Default.Type, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", 
+        cfg.Db.Default.User, 
+        cfg.Db.Default.Password, 
+        cfg.Db.Default.Host, 
+        cfg.Db.Default.DbName))
     if err != nil {
         log.Println(err)
     }

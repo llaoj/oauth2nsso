@@ -1,9 +1,12 @@
-# oauth2
-oauth2 server based on go-oauth2
+# gooauth
+1. oauth2 server: based on go-oauth2
+2. sso: based on the oauth2 service
+
+# 目录
 
 **实现了auth2的四种工作流程**
 
-1. authorization_code
+1. [authorization_code](##1.Flow:authorization_code)
 2. implicit
 3. password
 4. client credentials
@@ -12,6 +15,7 @@ oauth2 server based on go-oauth2
 
 5. 验证access_token (资源端)
 6. 刷新token
+7. 专门为SSO开发的logout
 
 **配置**
 
@@ -29,11 +33,9 @@ var (
 )
 ```
 
-3. 该项目的域名 `http://oauth2.laoj.xyz`
-
 ---
 
-## 1. Flow: authorization_code
+## 1.Flow:authorization_code
 
 ### 1.1. 获取授权code
 
@@ -48,7 +50,7 @@ GET
 **请求示例**
 
 ```
-http://oauth2.laoj.xyz/authorize?client_id=abc&response_type=code&scope=all&state=xyz&redirect_uri=http://abc.xyz/cb
+http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=https://localhost:9093/cb
 ```
 
 
@@ -58,13 +60,13 @@ http://oauth2.laoj.xyz/authorize?client_id=abc&response_type=code&scope=all&stat
 |-|-|-|
 |client_id|string|在oauth2 server 注册的client_id|
 |response_type|string|固定值`code`|
-|scope|string|权限范围,`str1,str2,str3`|
+|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
 |state|string|验证请求的标志字段|
 |redirect_uri|string|发放`code`用的回调uri,回调时会在uri后面跟上`?code=**&state=###`|
 
 **返回示例**
 
-`302 http://abc.xyz/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz`
+`302 http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz`
 
 **注意**
 
@@ -109,30 +111,6 @@ POST
 }
 ```
 
-### 1.3 logout
-
-这个接口主要是销毁浏览器的会话, 退出登录状态, 跳转到指定链接(redirect_uri), 一般用于sso
-
-**Method**
-
-GET
-
-**Url**
-
-`/logout?redirect_uri=xxx`
-
-**参数说明**  
-
-|参数|类型|说明|
-|-|-|-|
-|redirect_uri|string|退出登录后跳转到的地址,建议使用1.1所生成的地址, 需要urlencode|
-
-**请求示例**  
-
-```
-http://oauth2.laoj.xyz/logout?redirect_uri=http%3a%2f%2foauth2.laoj.xyz%2fauthorize%3fclient_id%3dabc%26response_type%3dcode%26scope%3dall%26state%3dxyz%26redirect_uri%3dhttp%3a%2f%2fabc.xyz%2fcb
-```
-
 ## 2.Flow: implicit
 
 ## 3.Flow: password
@@ -165,6 +143,7 @@ POST
 |参数|类型|说明|
 |-|-|-|
 |grant_type|string|固定值`client_credentials`|
+|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
 
 **返回示例**  
 
@@ -256,4 +235,30 @@ POST
     "scope": "all",
     "token_type": "Bearer"
 }
+```
+
+
+## 7 logout
+
+专门为SSO开发
+主要是销毁浏览器的会话, 退出登录状态, 跳转到指定链接(redirect_uri)
+
+**Method**
+
+GET
+
+**Url**
+
+`/logout?redirect_uri=xxx`
+
+**参数说明**  
+
+|参数|类型|说明|
+|-|-|-|
+|redirect_uri|string|退出登录后跳转到的地址,建议使用1.1所生成的地址, 需要urlencode|
+
+**请求示例**  
+
+```
+http://localhost:9096/logout?redirect_uri=http%3a%2f%2flocalhost%3a9096%2fauthorize%3fclient_id%3dtest_client_1%26response_type%3dcode%26scope%3dall%26state%3dxyz%26redirect_uri%3dhttp%3a%2f%2flocalhost%3a9093%2fcb
 ```
