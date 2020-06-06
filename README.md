@@ -20,9 +20,9 @@
 
 ---
 
-## 1-authorization_code
+## 1 authorization_code
 
-### 1-1-获取授权code
+### 1-1 获取授权code
 
 **请求方式**
 
@@ -52,7 +52,7 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 
 这里会返回请求时设置的`state`, 请在进行下一步之前验证它, 防止请求被劫持或者篡改
 
-### 1-2-使用`code`交换`token`
+### 1-2 使用`code`交换`token`
 
 **请求方式**
 
@@ -72,8 +72,8 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 |参数|类型|说明|
 |-|-|-|
 |grant_type|string|固定值`authorization_code`|
-|code|string|第一步发放的code|
-|redirect_uri|string|第一步填写的redirect_uri|
+|code|string| 1-1 发放的code|
+|redirect_uri|string| 1-1 填写的redirect_uri|
 
 **Response返回示例**  
 
@@ -87,10 +87,10 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 }
 ```
 
-## 2-implicit
+## 2 implicit
 
-资源请求方使用(client方)
-该方式多用于没有后端的应用, 
+资源请求方(client方)使用, 
+多用于没有后端的应用, 
 用户授权登录之后, 会直接向前端发送令牌(`access_token`)
 
 **请求方式**
@@ -101,7 +101,7 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 
 |参数|类型|说明|
 |-|-|-|
-|client_id|string|在oauth2 server 注册的client_id|
+|client_id|string|在 oauth2 server 注册的client_id|
 |response_type|string|固定值`token`|
 |scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
 |state|string|验证请求的标志字段|
@@ -127,9 +127,9 @@ https://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJh
 这里会返回请求时设置的`state`, 请在进行下一步之前验证它, 防止请求被劫持或者篡改
 
 
-## 3-password
+## 3 password
 
-资源请求方使用(client方)
+资源请求方(client方)使用
 如果充分信任接入应用(client), 用户就可以直接把用户名密码给接入应用.
 接入应用使用用户账号密码申请令牌.
 
@@ -167,9 +167,9 @@ https://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJh
 }
 ```
 
-## 4-client-credentials
+## 4 client_credentials
 
-资源请求方使用(client方)
+资源请求方(client方)使用
 使用在oauth2服务器注册的client_id 和 client_secret 获取 access_token,
 发出 API 请求时，它应将access_token作为 Bearer 令牌传递到 Authorization 请求头中。
 
@@ -205,11 +205,12 @@ https://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJh
 ```
 
 
-## 5-验证token
+## 5 验证token
 
 **接口说明**
 
-这个接口是资源端使用的, 用来验证 `access_token` `scope` 和 `domain` .
+这个接口是资源端使用的, 
+用来验证 `access_token` `scope` 和 `domain` .
 
 **请求方式**
 
@@ -244,7 +245,7 @@ Response Body
 
 如果token正确, 接口还会一起返回权限范围`scope` client的注册domain, 这里推荐验证下, 请求方的身份和权限.
 
-## 6-刷新token
+## 6 刷新token
 
 刷新access_token, 使用refresh_token换取access_token
 
@@ -282,9 +283,9 @@ Response Body
 ```
 
 
-## 7-logout
+## 7 logout
 
-专门为SSO开发
+专门为SSO开发, 
 主要是销毁浏览器的会话, 退出登录状态, 跳转到指定链接(redirect_u5ri)
 
 **请求方式**
@@ -303,7 +304,7 @@ Response Body
 http://localhost:9096/logout?redirect_uri=http%3a%2f%2flocalhost%3a9096%2fauthorize%3fclient_id%3dtest_client_1%26response_type%3dcode%26scope%3dall%26state%3dxyz%26redirect_uri%3dhttp%3a%2f%2flocalhost%3a9093%2fcb
 ```
 
-## 8-配置说明
+## 8 配置说明
 
 1. implicit 和 client credentials 模式是不会生成refresh token的, 刷新token时会删除原有的token重新发布新的token.
 2. 每一种模式的配置详情如下:
