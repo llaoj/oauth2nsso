@@ -2,6 +2,10 @@
 1. oauth2 server: based on go-oauth2
 2. sso: based on the oauth2 service
 
+## 演示授权码(authorization_code)流程 & 单点登录(SSO)
+
+![authorization_code_n_sso](./docs/demo-pic/authorization_code_n_sso.gif "authorization_code_n_sso")
+
 ## 目录
 
 **实现了auth2的四种工作流程**
