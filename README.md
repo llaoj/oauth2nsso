@@ -128,7 +128,8 @@ https://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJh
 
 **注意**
 
-这里会返回请求时设置的`state`, 请在进行下一步之前验证它, 防止请求被劫持或者篡改
+1. 这里会返回请求时设置的`state`, 请在进行下一步之前验证它, 防止请求被劫持或者篡改
+2. 这种方式把令牌直接传给前端，是很不安全的。因此，只能用于一些安全要求不高的场景，并且令牌的有效期必须非常短，通常就是会话期间（session）有效，浏览器关掉，令牌就失效了
 
 
 ## 3 password
