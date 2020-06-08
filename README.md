@@ -1,6 +1,6 @@
-## gooauth
-1. oauth2 server: based on go-oauth2
-2. sso: based on the oauth2 service
+## llaoj/oauth2
+1. OAuth2.0 Server: based on go-oauth2
+2. SSO Server: based on the OAuth2 service
 
 ## 演示授权码(authorization_code)流程 & 单点登录(SSO)
 
