@@ -16,8 +16,8 @@ import (
     "gopkg.in/oauth2.v3/models"
     "gopkg.in/oauth2.v3/server"
     "gopkg.in/oauth2.v3/store"
-    "github.com/go-redis/redis"
-    oredis "gopkg.in/go-oauth2/redis.v3"
+    // "github.com/go-redis/redis"
+    // oredis "gopkg.in/go-oauth2/redis.v3"
 
     "oauth2/model"
     "oauth2/config"
@@ -41,12 +41,12 @@ func main() {
     mgr = manage.NewDefaultManager()
     mgr.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
     // token store
-    // manager.MustTokenStorage(store.NewMemoryTokenStore())
-    // use redis token store
-    mgr.MapTokenStorage(oredis.NewRedisStore(&redis.Options{
-        Addr: config.Get().Redis.Default.Addr,
-        DB: config.Get().Redis.Default.Db,
-    }))
+    mgr.MustTokenStorage(store.NewMemoryTokenStore())
+    // or use redis token store
+    // mgr.MapTokenStorage(oredis.NewRedisStore(&redis.Options{
+    //     Addr: config.Get().Redis.Default.Addr,
+    //     DB: config.Get().Redis.Default.Db,
+    // }))
 
     // access token generate method: jwt
     mgr.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("00000000"), jwt.SigningMethodHS512))

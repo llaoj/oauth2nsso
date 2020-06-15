@@ -114,14 +114,14 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 **请求示例**
 
 ```
-http://localhost:9096/authorize?client_id=test_client_1&response_type=token&scope=all&state=xyz&redirect_uri=https://localhost:9093/cb
+http://localhost:9096/authorize?client_id=test_client_1&response_type=token&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb
 ```
 
 **返回示例**
 
 ```
 http status code 302
-https://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ0ZXN0X2NsaWVudF8xIiwiZXhwIjoxNTkxNDI3OTMwLCJzdWIiOiJhZG1pbiJ9.RBYns9UnNYDHINSBzvHWHRzuKCpzKmsxUnKt30lntmGvXmVDoByZtlB0RHAVB59PHBlJNO_YUBZzC2odwCa8Tg
+http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ0ZXN0X2NsaWVudF8xIiwiZXhwIjoxNTkxNDI3OTMwLCJzdWIiOiJhZG1pbiJ9.RBYns9UnNYDHINSBzvHWHRzuKCpzKmsxUnKt30lntmGvXmVDoByZtlB0RHAVB59PHBlJNO_YUBZzC2odwCa8Tg
 &expires_in=3600&scope=all&state=xyz&token_type=Bearer
 
 ```
@@ -233,7 +233,7 @@ Status Code: 200
 Response Body
 {
   "client_id": "test_client_1",
-  "domain": "https://127.0.0.1:9093",
+  "domain": "http://127.0.0.1:9093",
   "expires_in": 7188,
   "scope": "all",
   "user_id": ""

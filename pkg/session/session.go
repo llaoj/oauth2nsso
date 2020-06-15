@@ -24,6 +24,7 @@ func Setup(){
         MaxAge:   60 * 20,
         HttpOnly: true,
     }
+    // or use the redis store
     // store, _ = redistore.NewRediStore(yaml.Cfg.Redis.Default.Db, "tcp", yaml.Cfg.Redis.Default.Addr, "", []byte("secret-key"))
     // if err != nil {
     //     log.Fatal(err)
