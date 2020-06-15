@@ -45,7 +45,7 @@
 **请求示例**
 
 ```
-http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=https://localhost:9093/cb
+http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb
 ```
 
 **返回示例**
