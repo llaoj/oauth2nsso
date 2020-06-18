@@ -30,11 +30,9 @@ var mgr *manage.Manager
 func main() {
     time.Sleep(30 * time.Second)
     config.Setup()
-
     // init db connection
     // configure db in app.yaml then uncomment
     // model.Setup()
-
     session.Setup()
 
     // manager config
