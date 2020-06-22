@@ -8,7 +8,7 @@
 
 ## 目录
 
-**实现了auth2的四种工作流程**
+**实现了oauth2的四种工作流程**
 
 1. authorization_code
 2. implicit
