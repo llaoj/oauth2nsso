@@ -2,6 +2,10 @@
 1. OAuth2.0 Server: based on go-oauth2
 2. SSO Server: based on the OAuth2 service
 
+## B站视频讲解
+
+ [教你构建OAuth2.0和SSO单点登录服务(基于go-oauth2)](https://www.bilibili.com/video/BV1UA411v73P)
+
 ## 演示授权码(authorization_code)流程 & 单点登录(SSO)
 
 ![authorization_code_n_sso](./docs/demo-pic/authorization_code_n_sso.gif "authorization_code_n_sso")
