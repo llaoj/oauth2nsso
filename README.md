@@ -295,7 +295,7 @@ Response Body
 ## 7 logout
 
 专门为SSO开发, 
-主要是销毁浏览器的会话, 退出登录状态, 跳转到指定链接(redirect_u5ri)
+主要是销毁浏览器的会话, 退出登录状态, 跳转到指定链接(redirect_uri)
 
 **请求方式**
 
