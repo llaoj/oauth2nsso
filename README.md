@@ -1,6 +1,7 @@
 ## llaoj/oauth2
 1. OAuth2.0 Server: based on go-oauth2
 2. SSO Server: based on the OAuth2 service
+3. 多公司线上在用，其中包含上市公司。轻又好用。稳的一P。
 
 ## B站视频讲解
 
