@@ -9,7 +9,7 @@ import (
     "encoding/json"
     "html/template"
 
-    "github.com/dgrijalva/jwt-go"
+    "github.com/golang-jwt/jwt"
     "gopkg.in/oauth2.v3/errors"
     "gopkg.in/oauth2.v3/generates"
     "gopkg.in/oauth2.v3/manage"
