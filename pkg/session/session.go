@@ -2,26 +2,29 @@ package session
 
 import (
     // "log"
+    "encoding/gob"
     "net/http"
     "net/url"
 
-    "encoding/gob"
     "github.com/gorilla/sessions"
-	// "gopkg.in/boj/redistore.v1"
+    // "gopkg.in/boj/redistore.v1"
 
-	"oauth2/config"
+    "github.com/llaoj/oauth2/config"
 )
 
 var store *sessions.CookieStore
-// var store *redistore.RediStore 
 
-func Setup(){
+// var store *redistore.RediStore
+
+func Setup() {
     gob.Register(url.Values{})
 
     store = sessions.NewCookieStore([]byte(config.Get().Session.SecretKey))
     store.Options = &sessions.Options{
-        Path:     "/",
-        MaxAge:   60 * 20,
+        Path: "/",
+        // session 有效期
+        // 单位秒
+        MaxAge:   config.Get().Session.MaxAge,
         HttpOnly: true,
     }
     // or use the redis store
@@ -39,7 +42,7 @@ func Get(r *http.Request, name string) (val interface{}, err error) {
     if err != nil {
         return
     }
-    
+
     val = session.Values[name]
 
     return

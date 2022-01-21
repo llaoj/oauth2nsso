@@ -2,33 +2,34 @@ package main
 
 import (
     // "fmt"
-    "log"
-    "time"
-    "net/url"
-    "net/http"
+    "context"
     "encoding/json"
     "html/template"
+    "log"
+    "net/http"
+    "net/url"
+    "time"
 
+    "github.com/go-oauth2/oauth2/v4/errors"
+    "github.com/go-oauth2/oauth2/v4/generates"
+    "github.com/go-oauth2/oauth2/v4/manage"
+    "github.com/go-oauth2/oauth2/v4/models"
+    "github.com/go-oauth2/oauth2/v4/server"
+    "github.com/go-oauth2/oauth2/v4/store"
     "github.com/golang-jwt/jwt"
-    "gopkg.in/oauth2.v3/errors"
-    "gopkg.in/oauth2.v3/generates"
-    "gopkg.in/oauth2.v3/manage"
-    "gopkg.in/oauth2.v3/models"
-    "gopkg.in/oauth2.v3/server"
-    "gopkg.in/oauth2.v3/store"
+
     // "github.com/go-redis/redis"
     // oredis "gopkg.in/go-oauth2/redis.v3"
 
-    "oauth2/model"
-    "oauth2/config"
-    "oauth2/pkg/session"
+    "github.com/llaoj/oauth2/config"
+    "github.com/llaoj/oauth2/model"
+    "github.com/llaoj/oauth2/pkg/session"
 )
 
 var srv *server.Server
 var mgr *manage.Manager
 
 func main() {
-    time.Sleep(30 * time.Second)
     config.Setup()
     // init db connection
     // configure db in app.yaml then uncomment
@@ -37,7 +38,10 @@ func main() {
 
     // manager config
     mgr = manage.NewDefaultManager()
-    mgr.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
+    mgr.SetAuthorizeCodeTokenCfg(&manage.Config{
+        AccessTokenExp:    time.Hour * time.Duration(config.Get().OAuth2.AccessTokenExp),
+        RefreshTokenExp:   time.Hour * 24 * 3,
+        IsGenerateRefresh: true})
     // token store
     mgr.MustTokenStorage(store.NewMemoryTokenStore())
     // or use redis token store
@@ -47,7 +51,7 @@ func main() {
     // }))
 
     // access token generate method: jwt
-    mgr.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("00000000"), jwt.SigningMethodHS512))
+    mgr.MapAccessGenerate(generates.NewJWTAccessGenerate("", []byte(config.Get().OAuth2.JWTSignedKey), jwt.SigningMethodHS512))
     clientStore := store.NewClientStore()
     for _, v := range config.Get().OAuth2.Client {
         clientStore.Set(v.ID, &models.Client{
@@ -87,11 +91,11 @@ func passwordAuthorizationHandler(username, password string) (userID string, err
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
     v, _ := session.Get(r, "LoggedInUserID")
     if v == nil {
-       if r.Form == nil {
+        if r.Form == nil {
             r.ParseForm()
         }
         session.Set(w, r, "RequestForm", r.Form)
-        
+
         w.Header().Set("Location", "/login")
         w.WriteHeader(http.StatusFound)
 
@@ -108,8 +112,8 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 
 // 根据client注册的scope
 // 过滤非法scope
-func authorizeScopeHandler (w http.ResponseWriter, r *http.Request) (scope string, err error) {
-   if r.Form == nil {
+func authorizeScopeHandler(w http.ResponseWriter, r *http.Request) (scope string, err error) {
+    if r.Form == nil {
         r.ParseForm()
     }
     s := config.ScopeFilter(r.Form.Get("client_id"), r.Form.Get("scope"))
@@ -135,10 +139,10 @@ func responseErrorHandler(re *errors.Response) {
 func authorizeHandler(w http.ResponseWriter, r *http.Request) {
     var form url.Values
     if v, _ := session.Get(r, "RequestForm"); v != nil {
-       r.ParseForm()
+        r.ParseForm()
         if r.Form.Get("client_id") == "" {
             form = v.(url.Values)
-        } 
+        }
     }
     r.Form = form
 
@@ -175,7 +179,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     // 页面数据
     data := TplData{
         Client: config.GetClient(clientID),
-        Scope: config.ScopeFilter(clientID, scope),
+        Scope:  config.ScopeFilter(clientID, scope),
     }
     if data.Scope == nil {
         http.Error(w, "Invalid Scope", http.StatusBadRequest)
@@ -198,7 +202,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
             userID = user.GetUserIDByPwd(r.Form.Get("username"), r.Form.Get("password"))
             if userID == "" {
                 t, err := template.ParseFiles("tpl/login.html")
-                if err != nil{
+                if err != nil {
                     http.Error(w, err.Error(), http.StatusInternalServerError)
                     return
                 }
@@ -219,12 +223,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
         w.Header().Set("Location", "/authorize")
         w.WriteHeader(http.StatusFound)
-        
+
         return
     }
 
     t, err := template.ParseFiles("tpl/login.html")
-    if err != nil{
+    if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
@@ -265,7 +269,7 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
-    cli, err := mgr.GetClient(token.GetClientID())
+    cli, err := mgr.GetClient(context.Background(), token.GetClientID())
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
@@ -273,10 +277,10 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 
     data := map[string]interface{}{
         "expires_in": int64(token.GetAccessCreateAt().Add(token.GetAccessExpiresIn()).Sub(time.Now()).Seconds()),
-        "user_id": token.GetUserID(),
-        "client_id": token.GetClientID(),
-        "scope": token.GetScope(),
-        "domain": cli.GetDomain(),
+        "user_id":    token.GetUserID(),
+        "client_id":  token.GetClientID(),
+        "scope":      token.GetScope(),
+        "domain":     cli.GetDomain(),
     }
     e := json.NewEncoder(w)
     e.SetIndent("", "  ")
