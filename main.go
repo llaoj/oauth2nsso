@@ -83,7 +83,7 @@ func main() {
 
 func passwordAuthorizationHandler(username, password string) (userID string, err error) {
     var user model.User
-    userID = user.GetUserIDByPwd(username, password)
+    userID = user.GetUserIDByPwd(context.Background(), username, password)
 
     return
 }
@@ -199,7 +199,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         if r.Form.Get("type") == "password" {
             //自己实现验证逻辑
             var user model.User
-            userID = user.GetUserIDByPwd(r.Form.Get("username"), r.Form.Get("password"))
+            userID = user.GetUserIDByPwd(context.Background(), r.Form.Get("username"), r.Form.Get("password"))
             if userID == "" {
                 t, err := template.ParseFiles("tpl/login.html")
                 if err != nil {
