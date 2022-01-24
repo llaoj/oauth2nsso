@@ -74,7 +74,7 @@ func main() {
     http.HandleFunc("/login", loginHandler)
     http.HandleFunc("/logout", logoutHandler)
     http.HandleFunc("/token", tokenHandler)
-    http.HandleFunc("/test", testHandler)
+    http.HandleFunc("/verify", verifyHandler)
     http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
     log.Println("Server is running at 9096 port.")
@@ -164,15 +164,12 @@ type TplData struct {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-    form, err := session.Get(r, "RequestForm")
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+    form, _ := session.Get(r, "RequestForm")
     if form == nil {
-        http.Error(w, "Invalid Request", http.StatusBadRequest)
+        errorHandler(w, "无效的请求", http.StatusInternalServerError)
         return
     }
+
     clientID := form.(url.Values).Get("client_id")
     scope := form.(url.Values).Get("scope")
 
@@ -263,7 +260,7 @@ func tokenHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func testHandler(w http.ResponseWriter, r *http.Request) {
+func verifyHandler(w http.ResponseWriter, r *http.Request) {
     token, err := srv.ValidationBearerToken(r)
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
@@ -285,4 +282,22 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
     e := json.NewEncoder(w)
     e.SetIndent("", "  ")
     e.Encode(data)
+}
+
+func errorHandler(w http.ResponseWriter, message string, status int) {
+    w.WriteHeader(status)
+    if status >= 400 {
+        t, err := template.ParseFiles("tpl/error.html")
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
+        body := struct {
+            Status  int
+            Message string
+        }{Status: status, Message: message}
+
+        t.Execute(w, body)
+    }
 }

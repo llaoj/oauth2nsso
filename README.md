@@ -224,7 +224,7 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 
 **请求方式**
 
-`GET`  `/test`
+`GET`  `/verify`
 
 **请求头 Authorization**
 
