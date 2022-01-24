@@ -1,7 +1,7 @@
 # session 相关配置
 session:
   name: session_id
-  secret_key: abc123
+  secret_key: "kkoiybh1ah6rbh0"
   # 过期时间
   # 单位秒
   # 默认20分钟
@@ -19,6 +19,7 @@ db:
     password: abc
     dbname: oauth2
 
+# 可选
 # redis 相关配置
 # 可以提供:
 # - 统一回话存储
