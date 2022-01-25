@@ -179,7 +179,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         Scope:  config.ScopeFilter(clientID, scope),
     }
     if data.Scope == nil {
-        http.Error(w, "Invalid Scope", http.StatusBadRequest)
+        errorHandler(w, "无效的权限范围", http.StatusBadRequest)
         return
     }
 
@@ -198,11 +198,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
             var user model.User
             userID = user.GetUserIDByPwd(context.Background(), r.Form.Get("username"), r.Form.Get("password"))
             if userID == "" {
-                t, err := template.ParseFiles("tpl/login.html")
-                if err != nil {
-                    http.Error(w, err.Error(), http.StatusInternalServerError)
-                    return
-                }
+                t, _ := template.ParseFiles("tpl/login.html")
                 data.Error = "用户名密码错误!"
                 t.Execute(w, data)
 
@@ -212,6 +208,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
         //扫码验证
         //手机验证码验证
+        // ...
 
         if err := session.Set(w, r, "LoggedInUserID", userID); err != nil {
             http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -224,11 +221,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    t, err := template.ParseFiles("tpl/login.html")
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+    t, _ := template.ParseFiles("tpl/login.html")
     t.Execute(w, data)
 }
 
@@ -287,17 +280,11 @@ func verifyHandler(w http.ResponseWriter, r *http.Request) {
 func errorHandler(w http.ResponseWriter, message string, status int) {
     w.WriteHeader(status)
     if status >= 400 {
-        t, err := template.ParseFiles("tpl/error.html")
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
-        }
-
+        t, _ := template.ParseFiles("tpl/error.html")
         body := struct {
             Status  int
             Message string
         }{Status: status, Message: message}
-
         t.Execute(w, body)
     }
 }
