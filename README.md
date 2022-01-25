@@ -29,7 +29,7 @@
 6. 刷新 token 接口 `/refresh`
 7. 专门为 SSO 开发的客户端登出接口 `/logout`
 
-详情见[API说明](http://rutron.nethttp://rutron.net/docs/oaut2nsso/apis/)
+详情见[API说明](http://rutron.net/docs/oaut2nsso/apis/)
 
 
 
