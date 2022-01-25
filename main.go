@@ -96,6 +96,9 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
         }
         session.Set(w, r, "RequestForm", r.Form)
 
+        // 登录页面
+        // 最终会把userId写进session(LoggedInUserID)
+        // 再跳回来
         w.Header().Set("Location", "/login")
         w.WriteHeader(http.StatusFound)
 
@@ -110,19 +113,20 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
     return
 }
 
-// 根据client注册的scope
-// 过滤非法scope
+// 场景:在登录页面勾选所要访问的资源范围
+// 根据client注册的scope,过滤表单中非法scope
+// HandleAuthorizeRequest中调用
+// set scope for the access token
 func authorizeScopeHandler(w http.ResponseWriter, r *http.Request) (scope string, err error) {
     if r.Form == nil {
         r.ParseForm()
     }
     s := config.ScopeFilter(r.Form.Get("client_id"), r.Form.Get("scope"))
     if s == nil {
-        http.Error(w, "Invalid Scope", http.StatusBadRequest)
+        err = errors.New("无效的权限范围")
         return
     }
     scope = config.ScopeJoin(s)
-
     return
 }
 
@@ -147,12 +151,13 @@ func authorizeHandler(w http.ResponseWriter, r *http.Request) {
     r.Form = form
 
     if err := session.Delete(w, r, "RequestForm"); err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        errorHandler(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
     if err := srv.HandleAuthorizeRequest(w, r); err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+        errorHandler(w, err.Error(), http.StatusBadRequest)
+        return
     }
 }
 
@@ -186,38 +191,37 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     if r.Method == "POST" {
         if r.Form == nil {
             if err := r.ParseForm(); err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
+                errorHandler(w, err.Error(), http.StatusInternalServerError)
                 return
             }
         }
         var userID string
 
-        //账号密码验证
+        // 方式1:账号密码验证
         if r.Form.Get("type") == "password" {
-            //自己实现验证逻辑
             var user model.User
-            userID = user.GetUserIDByPwd(context.Background(), r.Form.Get("username"), r.Form.Get("password"))
+            // 这里需要修改GetUserIDByPwd的实现
+            // 自己实现验证逻辑
+            userID = user.GetUserIDByPwd(r.Context(), r.Form.Get("username"), r.Form.Get("password"))
             if userID == "" {
                 t, _ := template.ParseFiles("tpl/login.html")
                 data.Error = "用户名密码错误!"
                 t.Execute(w, data)
-
                 return
             }
         }
 
-        //扫码验证
-        //手机验证码验证
-        // ...
+        // 方式2:扫码验证
+        // 方式3:手机验证码验证
+        // 方式N:...
 
         if err := session.Set(w, r, "LoggedInUserID", userID); err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
+            errorHandler(w, err.Error(), http.StatusInternalServerError)
             return
         }
 
         w.Header().Set("Location", "/authorize")
         w.WriteHeader(http.StatusFound)
-
         return
     }
 
@@ -228,17 +232,25 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
     if r.Form == nil {
         if err := r.ParseForm(); err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
+            errorHandler(w, err.Error(), http.StatusInternalServerError)
             return
         }
     }
+
+    // 检查redirect_uri参数
     redirectURI := r.Form.Get("redirect_uri")
+    if redirectURI == "" {
+        errorHandler(w, "参数不能为空(redirect_uri)", http.StatusBadRequest)
+        return
+    }
     if _, err := url.Parse(redirectURI); err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+        errorHandler(w, "参数无效(redirect_uri)", http.StatusBadRequest)
+        return
     }
 
+    // 删除公共回话
     if err := session.Delete(w, r, "LoggedInUserID"); err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
+        errorHandler(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
@@ -259,7 +271,7 @@ func verifyHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
-    cli, err := mgr.GetClient(context.Background(), token.GetClientID())
+    cli, err := mgr.GetClient(r.Context(), token.GetClientID())
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
@@ -277,6 +289,8 @@ func verifyHandler(w http.ResponseWriter, r *http.Request) {
     e.Encode(data)
 }
 
+// 错误显示页面
+// 以网页的形式展示大于400的错误
 func errorHandler(w http.ResponseWriter, message string, status int) {
     w.WriteHeader(status)
     if status >= 400 {
