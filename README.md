@@ -1,17 +1,20 @@
-## llaoj/oauth2
-1. OAuth2.0 Server: based on go-oauth2
-2. SSO Server: based on the OAuth2 service
-3. 多公司线上在用，其中包含上市公司。轻又好用。稳的一P。
+# OAuth2&SSO
+
+## 项目介绍
+
+[llaoj/oauth2](https://github.com/llaoj/oauth2) 项目是基于 go-oauth2 打造的**独立**的 OAuth2.0 和 SSO 服务，提供了开箱即用的 OAuth2.0服务和单点登录SSO服务。开源一年多，获得了社区很多用户的关注，该项目多公司线上在用，其中包含上市公司。轻又好用，稳的一P。
 
 ## B站视频讲解
 
  [教你构建OAuth2.0和SSO单点登录服务(基于go-oauth2)](https://www.bilibili.com/video/BV1UA411v73P)
 
-## 演示授权码(authorization_code)流程 & 单点登录(SSO)
+## 动图演示
 
-![authorization_code_n_sso](./docs/demo-pic/authorization_code_n_sso.gif "authorization_code_n_sso")
+授权码(authorization_code)流程 & 单点登录(SSO)
 
-## 目录
+![authorization_code_n_sso](https://raw.githubusercontent.com/llaoj/oauth2/master/docs/demo-pic/authorization_code_n_sso.gif)
+
+## 主要功能
 
 **实现了oauth2的四种工作流程**
 
@@ -20,14 +23,93 @@
 3. password
 4. client credentials
 
-**其他**
+**扩展功能**
 
-5. 验证access_token (资源端)
-6. 刷新token
-7. 专门为SSO开发的logout
-8. 配置说明
+5. 资源端用的验证 access_token 接口 `/validate`
+6. 刷新 token 接口 `/refresh`
+7. 专门为 SSO 开发的客户端登出接口 `/logout`
 
----
+详情见[API说明](/docs/oaut2nsso/apis/)
+
+
+
+# 配置
+
+该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`--config=`标签进行配置。比如：`oauth2 --config=/etc/oauth2/app.yaml`
+
+配置文件介绍如下：
+
+```yaml
+# session 相关配置
+session:
+  name: session_id
+  secret_key: "kkoiybh1ah6rbh0"
+  # 过期时间
+  # 单位秒
+  # 默认20分钟
+  max_age: 1200
+
+# 数据库相关配置
+# 默认是 default 连接
+# 这里可以添加多个连接支持
+db:
+  default:
+    type: mysql
+    host: string
+    port: 3306
+    user: 123
+    password: abc
+    dbname: oauth2
+
+# 可选
+# redis 相关配置
+# 可以提供:
+# - 统一回话存储
+# - oauth2 client 存储
+redis:
+  default:
+    addr: 127.0.0.1:6379
+    password: 
+    db: 0
+
+# oauth2 相关配置
+oauth2:
+  # access_token 过期时间
+  # 单位小时
+  # 默认2小时
+  access_token_exp: 2
+  # 签名 jwt access_token 时所用 key
+  jwt_signed_key: "k2bjI75JJHolp0i"
+  
+  # oauth2 客户端配置
+  # 数组类型
+  # 可配置多客户端
+  client:
+
+      # 客户端id 必须全局唯一
+    - id: test_client_1
+      # 客户端 secret
+      secret: test_secret_1
+      # 应用名 在页面上必要时进行显示
+      name: 测试应用1
+      # 客户端 domain
+      # !!注意 http/https 不要写错!!
+      domain: http://localhost:9093
+      # 权限范围
+      # 数组类型
+      # 可以配置多个权限 
+      # 颁发的 access_token 中会包含该值 资源方可以对该值进行验证
+      scope:
+          # 权限范围 id 唯一
+        - id: all
+          # 权限范围名称
+          # 会在页面（登录页面）进行展示
+          title: "用户账号、手机、权限、角色等信息"
+
+```
+
+
+# API列表
 
 ## 1 authorization_code
 
@@ -41,25 +123,21 @@
 
 |参数|类型|说明|
 |-|-|-|
-|client_id|string|在oauth2 server 注册的client_id|
-|response_type|string|固定值`code`|
-|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
-|state|string|验证请求的标志字段|
-|redirect_uri|string|发放`code`用的回调uri,回调时会在uri后面跟上`?code=**&state=###`|
+|client_id|string|在oauth2 server注册的client_id,见配置文件[oauth2.client.id](/docs/oaut2nsso/configuration)|
+|response_type|string|固定值:`code`|
+|scope|string|权限范围,如:`str1,str2,str3`,str为配置文件中[oauth2.client.scope.id](/docs/oaut2nsso/configuration)的值 |
+|state|string|表示客户端的当前状态,可以指定任意值,认证服务器会原封不动地返回这个值|
+|redirect_uri|string|回调uri,会在后面添加query参数`?code=xxx&state=xxx`,发放的code就在其中|
 
 **请求示例**
 
-```
+```sh
+# 浏览器请求
 http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb
+
+# 302跳转,返回code
+http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz
 ```
-
-**返回示例**
-
-`302 http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz`
-
-**注意**
-
-这里会返回请求时设置的`state`, 请在进行下一步之前验证它, 防止请求被劫持或者篡改
 
 ### 1-2 使用`code`交换`token`
 
@@ -86,7 +164,7 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 
 **Response返回示例**  
 
-```
+```json
 {
     "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIyMjIyMjIiLCJleHAiOjE1ODU3MTU1NTksInN1YiI6InRlc3QifQ.ZMgIDQMW7FGxbF1V8zWOmEkmB7aLH1suGYjhDdrT7aCYMEudWUoiCkWHSvBmJahGm0RDXa3IyDoGFxeMfzlDNQ",
     "expires_in": 7200,
@@ -112,23 +190,22 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 |-|-|-|
 |client_id|string|在 oauth2 server 注册的client_id|
 |response_type|string|固定值`token`|
-|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
+|scope|string|权限范围,同1-1中说明|
 |state|string|验证请求的标志字段|
 |redirect_uri|string|发放`code`用的回调uri,回调时会在uri后面跟上`?code=**&state=###`|
 
 **请求示例**
 
-```
+```sh
 http://localhost:9096/authorize?client_id=test_client_1&response_type=token&scope=all&state=xyz&redirect_uri=http://localhost:9093/cb
 ```
 
 **返回示例**
 
-```
-http status code 302
+```sh
+# 302 跳转,返回 access_token
 http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ0ZXN0X2NsaWVudF8xIiwiZXhwIjoxNTkxNDI3OTMwLCJzdWIiOiJhZG1pbiJ9.RBYns9UnNYDHINSBzvHWHRzuKCpzKmsxUnKt30lntmGvXmVDoByZtlB0RHAVB59PHBlJNO_YUBZzC2odwCa8Tg
 &expires_in=3600&scope=all&state=xyz&token_type=Bearer
-
 ```
 
 **注意**
@@ -163,11 +240,11 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 |grant_type|string|固定值`password`|
 |username|string|用户名|
 |password|string|用户密码|
-|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all` |
+|scope|string|权限范围,同1-1中说明|
 
-**Response返回示例**  
+**返回示例**  
 
-```
+```json
 {
     "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ0ZXN0X2NsaWVudF8xIiwiZXhwIjoxNTkxNDMyNzA3LCJzdWIiOiJhZG1pbiJ9.ECfUkCMUZE8I6GH3XTDcJnQgDryiRyyBhEHBW-dCxzFWaR-mvU5dsx3XV2bx-LWZzPJTBAQ3rB5QOb4BHjnBXw",
     "expires_in": 7200,
@@ -202,18 +279,17 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 |参数|类型|说明|
 |-|-|-|
 |grant_type|string|固定值`client_credentials`|
-|scope|string|权限范围,`str1,str2,str3`, 如果没有特殊说明,填`all`, `scope` 需要提前在oauth2服务注册 |
+|scope|string|权限范围,同1-1中说明|
 
 **返回示例**  
 
-```
+```json
 {
     "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJlbWJlZGVkLWg1LWFwaSIsImV4cCI6MTU4OTk3NzQyNn0.Pu93fy0-gyiFqExBkCFAKTVJ1on_RpOSexzkHqczA6n6kB2_mOHbTMOyGK_Di7bHxZ3JqpZeyDoKQBtUe_T7jw",
     "expires_in": 7200,
     "token_type": "Bearer"
 }
 ```
-
 
 ## 5 验证token
 
@@ -233,9 +309,11 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 
 **返回示例**  
 
-```
-Status Code: 200
-Response Body
+正确 Status Code: 200
+
+Response Body:
+
+```json
 {
   "client_id": "test_client_1",
   "domain": "http://127.0.0.1:9093",
@@ -244,16 +322,11 @@ Response Body
   "user_id": ""
 }
 ```
+> **注意:** 接口还会一起返回权限范围`scope` 和 client 的注册 domain, 这里推荐验证下, 请求方的身份和权限
 
-```
-Status Code: 400
-Response Body
-   invalid access token
-```
+错误 Status Code: 400
 
-**注意** 
-
-如果token正确, 接口还会一起返回权限范围`scope` client的注册domain, 这里推荐验证下, 请求方的身份和权限.
+Response Body: `invalid access token`
 
 ## 6 刷新token
 
@@ -275,6 +348,7 @@ Response Body
 
 **Body参数说明**
 
+
 |参数|类型|说明|
 |-|-|-|
 |grant_type|string|固定值`refresh_token`|
@@ -282,7 +356,7 @@ Response Body
 
 **返回示例**
 
-```
+```json
 {
     "access_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIyMjIyMjIiLCJleHAiOjE1ODU4MTc2MTMsInN1YiI6IjEifQ.yNpQIbklhtsSr5KEkJMAR4I30c85OEriYwAOpL_ukRBJ1qsSziT05HFN-kxVN1-qM18TzVEf8beCvugyhpgpsg",
     "expires_in": 7200,
@@ -291,7 +365,6 @@ Response Body
     "token_type": "Bearer"
 }
 ```
-
 
 ## 7 logout
 
@@ -310,22 +383,71 @@ Response Body
 
 **请求示例**  
 
-```
+```sh
 http://localhost:9096/logout?redirect_uri=http%3a%2f%2flocalhost%3a9096%2fauthorize%3fclient_id%3dtest_client_1%26response_type%3dcode%26scope%3dall%26state%3dxyz%26redirect_uri%3dhttp%3a%2f%2flocalhost%3a9093%2fcb
 ```
 
-## 8 配置说明
 
-1. implicit 和 client credentials 模式是不会生成refresh token的, 刷新token时会删除原有的token重新发布新的token.
-2. 每一种模式的配置详情如下:
+# 部署
 
+## 修改配置和完善代码
+
+克隆到代码之后，首先需要进行配置文件的修改和部分代码逻辑的编写：
+
+```sh
+# 克隆源码
+git clone git@github.com:llaoj/oauth2.git
+cd oauth2
+
+# 根据实际情况修改配置
+cp config.example.yaml /etc/oauth2/config.yaml
+vi /etc/oauth2/config.yaml
+...
+
+# 修改源码
+# 主要修改登录部分逻辑:
+# 文件: model/user.go:13
+# 方法: GetUserIDByPwd()
+...
 ```
-var (
-  DefaultCodeExp = time.Minute * 10
-  DefaultAuthorizeCodeTokenCfg = &Config{AccessTokenExp: time.Hour * 2, RefreshTokenExp: time.Hour * 24 * 3, IsGenerateRefresh: true}
-  DefaultImplicitTokenCfg = &Config{AccessTokenExp: time.Hour * 1}
-  DefaultPasswordTokenCfg = &Config{AccessTokenExp: time.Hour * 2, RefreshTokenExp: time.Hour * 24 * 7, IsGenerateRefresh: true}
-  DefaultClientTokenCfg = &Config{AccessTokenExp: time.Hour * 2}
-  DefaultRefreshTokenCfg = &RefreshingConfig{IsGenerateRefresh: true, IsRemoveAccess: true, IsRemoveRefreshing: true}
-)
+
+## 使用docker部署
+
+**[推荐]** 容器化部署比较方便进行大规模部署，是当下的趋势。需要本地有 docker 环境。
+
+```sh
+# 构建镜像
+docker build -t <image:tag> -f build/Dockerfile .
+
+# 运行
+docker run --rm --name=oauth2 --restart=always -d \
+-p 9096:9096 \
+-v <path to config.yaml>:/etc/oauth2/config.yaml \
+<image:tag>
 ```
+
+## 基于源码部署
+
+```sh
+# 在仓库根目录
+# 编译
+go build -mod=vendor
+
+# 运行
+./oauth2 -config=/etc/oauth2/config.yaml
+```
+
+
+# 版本说明
+
+## v0.2.0
+
+该项目发布以来收到了很多朋友的关注，很多公司都将它应用到了一些比较重要的项目中。同时，也对该项目提出了很多要求。综合这些，开发了这个版本。同时希望朋友们互相交流，多提意见。
+
+这个版本主要有下面几个改动：
+
+1. 由于 go-oauth2.v3 版本安全性原因，将该包升级到 v4
+2. 丰富了可配置的项目
+3. 增加了容器化部署的脚本和相关文档
+4. 多了一些细节的优化
+5. 增加了错误页面
