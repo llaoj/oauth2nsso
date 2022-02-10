@@ -76,6 +76,7 @@ func main() {
     http.HandleFunc("/token", tokenHandler)
     http.HandleFunc("/verify", verifyHandler)
     http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+    http.HandleFunc("/", notFoundHandler)
 
     log.Println("Server is running at 9096 port.")
     log.Fatal(http.ListenAndServe(":9096", nil))
@@ -287,6 +288,11 @@ func verifyHandler(w http.ResponseWriter, r *http.Request) {
     e := json.NewEncoder(w)
     e.SetIndent("", "  ")
     e.Encode(data)
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+    errorHandler(w, "无效的地址", http.StatusNotFound)
+    return
 }
 
 // 错误显示页面

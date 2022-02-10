@@ -8,6 +8,10 @@
 
  [教你构建OAuth2.0和SSO单点登录服务(基于go-oauth2)](https://www.bilibili.com/video/BV1UA411v73P)
 
+## 单点登录(SSO)示例
+
+[单点登录(SSO)示例](http://rutron.net/docs/oaut2nsso/demo/)
+
 ## 动图演示
 
 授权码(authorization_code)流程 & 单点登录(SSO)
