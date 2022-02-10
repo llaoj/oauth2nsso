@@ -25,7 +25,7 @@
 
 **扩展功能**
 
-5. 资源端用的验证 access_token 接口 `/validate`
+5. 资源端用的验证 access_token 接口 `/verify`
 6. 刷新 token 接口 `/refresh`
 7. 专门为 SSO 开发的客户端登出接口 `/logout`
 
