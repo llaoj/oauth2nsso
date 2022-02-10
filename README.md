@@ -417,7 +417,7 @@ vi /etc/oauth2/config.yaml
 
 ```sh
 # 构建镜像
-docker build -t <image:tag> -f build/Dockerfile .
+docker build -t <image:tag> .
 
 # 运行
 docker run --rm --name=oauth2 --restart=always -d \
