@@ -8,12 +8,25 @@ type App struct {
         SecretKey string `yaml:"secret_key"`
         MaxAge    int    `yaml:"max_age"`
     } `yaml:"session"`
-    Db struct {
-        Default Db
-    }
+
+    AuthMode string `yaml:"auth_mode"`
+
+    DB struct {
+        Default DB
+    } `yaml:"db"`
+
+    LDAP struct {
+        URL            string `yaml:"url"`
+        SearchDN       string `yaml:"search_dn"`
+        SearchPassword string `yaml:"search_password"`
+        BaseDN         string `yaml:"base_dn"`
+        Filter         string `yaml:"filter"`
+    } `yaml:"ldap"`
+
     Redis struct {
         Default Redis
-    }
+    } `yaml:"redis"`
+
     OAuth2 struct {
         AccessTokenExp int      `yaml:"access_token_exp"`
         JWTSignedKey   string   `yaml:"jwt_signed_key"`
@@ -21,19 +34,19 @@ type App struct {
     } `yaml:"oauth2"`
 }
 
-type Db struct {
+type DB struct {
     Type     string `yaml:"type"`
     Host     string `yaml:"host"`
     Port     int    `yaml:"port"`
     User     string `yaml:"user"`
     Password string `yaml:"password"`
-    DbName   string `yaml:"dbname"`
+    DBName   string `yaml:"dbname"`
 }
 
 type Redis struct {
     Addr     string `yaml:"addr"`
     Password string `yaml:"password"`
-    Db       int    `yaml:"db"`
+    DB       int    `yaml:"db"`
 }
 
 type Client struct {

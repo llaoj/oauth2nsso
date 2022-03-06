@@ -11,16 +11,14 @@ import (
     "github.com/llaoj/oauth2/config"
 )
 
-var db *gorm.DB
-
-func Setup() {
+func DB() (db *gorm.DB) {
     var err error
     cfg := config.Get()
-    db, err = gorm.Open(cfg.Db.Default.Type, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
-        cfg.Db.Default.User,
-        cfg.Db.Default.Password,
-        cfg.Db.Default.Host,
-        cfg.Db.Default.DbName))
+    db, err = gorm.Open(cfg.DB.Default.Type, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+        cfg.DB.Default.User,
+        cfg.DB.Default.Password,
+        cfg.DB.Default.Host,
+        cfg.DB.Default.DBName))
     if err != nil {
         log.Println(err)
     }
@@ -29,11 +27,13 @@ func Setup() {
     db.LogMode(true)
     db.DB().SetMaxIdleConns(10)
     db.DB().SetMaxOpenConns(100)
+
+    return
 }
 
-func CloseDB() {
-    defer db.Close()
-}
+// func CloseDB() {
+//     defer db.Close()
+// }
 
 type Model struct {
     ID        uint       `gorm:"primary_key" json:"id"`

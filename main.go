@@ -47,7 +47,7 @@ func main() {
     // or use redis token store
     // mgr.MapTokenStorage(oredis.NewRedisStore(&redis.Options{
     //     Addr: config.Get().Redis.Default.Addr,
-    //     DB: config.Get().Redis.Default.Db,
+    //     DB: config.Get().Redis.Default.DB,
     // }))
 
     // access token generate method: jwt
@@ -84,7 +84,7 @@ func main() {
 
 func passwordAuthorizationHandler(username, password string) (userID string, err error) {
     var user model.User
-    userID = user.GetUserIDByPwd(context.Background(), username, password)
+    userID, err = user.Authentication(context.Background(), username, password)
 
     return
 }
@@ -170,6 +170,7 @@ type TplData struct {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+
     form, _ := session.Get(r, "RequestForm")
     if form == nil {
         errorHandler(w, "无效的请求", http.StatusInternalServerError)
@@ -190,23 +191,25 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     if r.Method == "POST" {
+
+        var userID string
+        var err error
+
         if r.Form == nil {
-            if err := r.ParseForm(); err != nil {
+            err = r.ParseForm()
+            if err != nil {
                 errorHandler(w, err.Error(), http.StatusInternalServerError)
                 return
             }
         }
-        var userID string
 
         // 方式1:账号密码验证
         if r.Form.Get("type") == "password" {
             var user model.User
-            // 这里需要修改GetUserIDByPwd的实现
-            // 自己实现验证逻辑
-            userID = user.GetUserIDByPwd(r.Context(), r.Form.Get("username"), r.Form.Get("password"))
-            if userID == "" {
+            userID, err = user.Authentication(r.Context(), r.Form.Get("username"), r.Form.Get("password"))
+            if err != nil {
+                data.Error = err.Error()
                 t, _ := template.ParseFiles("tpl/login.html")
-                data.Error = "用户名密码错误!"
                 t.Execute(w, data)
                 return
             }
@@ -216,7 +219,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
         // 方式3:手机验证码验证
         // 方式N:...
 
-        if err := session.Set(w, r, "LoggedInUserID", userID); err != nil {
+        err = session.Set(w, r, "LoggedInUserID", userID)
+        if err != nil {
             errorHandler(w, err.Error(), http.StatusInternalServerError)
             return
         }
