@@ -15,13 +15,7 @@ type App struct {
         Default DB
     } `yaml:"db"`
 
-    LDAP struct {
-        URL            string `yaml:"url"`
-        SearchDN       string `yaml:"search_dn"`
-        SearchPassword string `yaml:"search_password"`
-        BaseDN         string `yaml:"base_dn"`
-        Filter         string `yaml:"filter"`
-    } `yaml:"ldap"`
+    LDAP LDAP `yaml:"ldap"`
 
     Redis struct {
         Default Redis
@@ -60,4 +54,12 @@ type Client struct {
 type Scope struct {
     ID    string `yaml:"id"`
     Title string `yaml:"title"`
+}
+
+type LDAP struct {
+    URL            string `yaml:"url"`
+    SearchDN       string `yaml:"search_dn"`
+    SearchPassword string `yaml:"search_password"`
+    BaseDN         string `yaml:"base_dn"`
+    Filter         string `yaml:"filter"`
 }

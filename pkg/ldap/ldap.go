@@ -1,69 +1,152 @@
 package ldap
 
 import (
-    "errors"
+    "crypto/tls"
     "fmt"
+    "log"
+    "net"
+    "net/url"
+    "strings"
 
     ldap "github.com/go-ldap/ldap/v3"
     "github.com/llaoj/oauth2/config"
 )
 
-func UserAuthentication(username, password string) (userID string, err error) {
+type Session struct {
+    ldapCfg  config.LDAP
+    ldapConn *ldap.Conn
+}
 
-    cfg := config.Get().LDAP
-
-    l, err := ldap.DialURL(cfg.URL)
-    if err != nil {
-        return
+func NewSession(ldapCfg config.LDAP) *Session {
+    return &Session{
+        ldapCfg: ldapCfg,
     }
-    defer l.Close()
+}
 
-    // Reconnect with TLS
-    // err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
-    // if err != nil {
-    //     return
-    // }
+func formatURL(ldapURL string) (string, error) {
+
+    var protocol, hostport string
+    _, err := url.Parse(ldapURL)
+    if err != nil {
+        return "", fmt.Errorf("parse Ldap Host ERR: %s", err)
+    }
+
+    if strings.Contains(ldapURL, "://") {
+        splitLdapURL := strings.Split(ldapURL, "://")
+        protocol, hostport = splitLdapURL[0], splitLdapURL[1]
+        if !((protocol == "ldap") || (protocol == "ldaps")) {
+            return "", fmt.Errorf("unknown ldap protocol")
+        }
+    } else {
+        hostport = ldapURL
+        protocol = "ldap"
+    }
+
+    if strings.Contains(hostport, ":") {
+        _, port, err := net.SplitHostPort(hostport)
+        if err != nil {
+            return "", fmt.Errorf("illegal ldap url, error: %v", err)
+        }
+        if port == "636" {
+            protocol = "ldaps"
+        }
+    } else {
+        switch protocol {
+        case "ldap":
+            hostport = hostport + ":389"
+        case "ldaps":
+            hostport = hostport + ":636"
+        }
+    }
+
+    fLdapURL := protocol + "://" + hostport
+    return fLdapURL, nil
+}
+
+// open Session
+// should invoke Close for each Open call
+func (s *Session) Open() error {
+    ldapURL, err := formatURL(s.ldapCfg.URL)
+    if err != nil {
+        return err
+    }
+    splitLdapURL := strings.Split(ldapURL, "://")
+
+    protocol, hostport := splitLdapURL[0], splitLdapURL[1]
+    host, _, err := net.SplitHostPort(hostport)
+    if err != nil {
+        return err
+    }
+
+    log.Println(ldapURL)
+
+    switch protocol {
+    case "ldap":
+        l, err := ldap.Dial("tcp", hostport)
+        if err != nil {
+            return err
+        }
+        s.ldapConn = l
+    case "ldaps":
+        l, err := ldap.DialTLS("tcp", hostport, &tls.Config{ServerName: host, InsecureSkipVerify: true})
+        if err != nil {
+            return err
+        }
+        s.ldapConn = l
+    }
+
+    return nil
+}
+
+// close current session
+func (s *Session) Close() {
+    if s.ldapConn != nil {
+        s.ldapConn.Close()
+    }
+}
+
+func UserAuthentication(username, password string) (string, error) {
+
+    s := NewSession(config.Get().LDAP)
+    if err := s.Open(); err != nil {
+        return "", err
+    }
+    defer s.Close()
 
     // First bind with a read only user
-    err = l.Bind(cfg.SearchDN, cfg.SearchPassword)
-    if err != nil {
-        return
-
+    if err := s.ldapConn.Bind(s.ldapCfg.SearchDN, s.ldapCfg.SearchPassword); err != nil {
+        return "", err
     }
 
     // Search for the given username
     searchRequest := ldap.NewSearchRequest(
-        cfg.BaseDN,
+        s.ldapCfg.BaseDN,
         ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-        fmt.Sprintf(cfg.Filter, ldap.EscapeFilter(username)),
+        fmt.Sprintf(s.ldapCfg.Filter, ldap.EscapeFilter(username)),
         []string{"dn"},
         nil,
     )
 
-    sr, err := l.Search(searchRequest)
+    sr, err := s.ldapConn.Search(searchRequest)
     if err != nil {
-        return
+        return "", err
     }
 
     if len(sr.Entries) != 1 {
-        err = errors.New("用户不存在或者不唯一")
-        return
+        return "", fmt.Errorf("用户不存在或者不唯一")
     }
 
     userdn := sr.Entries[0].DN
 
     // Bind as the user to verify their password
-    err = l.Bind(userdn, password)
-    if err != nil {
-        return
+    if err := s.ldapConn.Bind(userdn, password); err != nil {
+        return "", err
     }
 
     // Rebind as the read only user for any further queries
-    err = l.Bind(cfg.SearchDN, cfg.SearchPassword)
-    if err != nil {
-        return
+    if err := s.ldapConn.Bind(s.ldapCfg.SearchDN, s.ldapCfg.SearchPassword); err != nil {
+        return "", err
     }
 
-    userID = username
-    return
+    return username, nil
 }
