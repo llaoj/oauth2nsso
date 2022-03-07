@@ -53,9 +53,13 @@ session:
   # 默认20分钟
   max_age: 1200
 
+# 用户登录验证方式
+# 支持: db ldap
+auth_mode: ldap
+
 # 数据库相关配置
-# 默认是 default 连接
 # 这里可以添加多个连接支持
+# 默认是 default 连接
 db:
   default:
     type: mysql
@@ -64,6 +68,26 @@ db:
     user: 123
     password: abc
     dbname: oauth2
+
+ldap:
+  # 服务地址
+  # 支持 ldap ldaps
+  url: ldap://ldap.example.org
+  # url: ldaps://ldap.example.org
+
+  # 查询使用的DN
+  search_dn: cn=admin,dc=example,dc=org
+  # 查询使用DN的密码
+  search_password: admin
+  
+  # 基础DN
+  # 以此为基础开始查找用户
+  base_dn: dc=example,dc=org
+  # 查询用户的Filter
+  # 比如: 
+  #   (&(uid=%s)) 或者 (&(objectClass=organizationalPerson)(uid=%s))
+  #   其中, (uid=%s) 表示使用 uid 属性检索用户, %s 为用户名, 这一段必须要有, 可以替换 uid 以使用其他属性检索用户名
+  filter: (&(cn=%s))
 
 # 可选
 # redis 相关配置

@@ -22,9 +22,9 @@ type App struct {
     } `yaml:"redis"`
 
     OAuth2 struct {
-        AccessTokenExp int      `yaml:"access_token_exp"`
-        JWTSignedKey   string   `yaml:"jwt_signed_key"`
-        Client         []Client `yaml:"client"`
+        AccessTokenExp int            `yaml:"access_token_exp"`
+        JWTSignedKey   string         `yaml:"jwt_signed_key"`
+        Client         []OAuth2Client `yaml:"client"`
     } `yaml:"oauth2"`
 }
 
@@ -43,7 +43,7 @@ type Redis struct {
     DB       int    `yaml:"db"`
 }
 
-type Client struct {
+type OAuth2Client struct {
     ID     string  `yaml:"id"`
     Secret string  `yaml:"secret"`
     Name   string  `yaml:"name"`

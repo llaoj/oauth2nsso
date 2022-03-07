@@ -1,15 +1,15 @@
 package config
 
 import (
-        // "fmt"
-        "strings"
+    // "fmt"
+    "strings"
 )
 
 func Get() *App {
     return &cfg
 }
 
-func GetClient(clientID string) (cli Client) {
+func GetOAuth2Client(clientID string) (cli OAuth2Client) {
     for _, v := range cfg.OAuth2.Client {
         if v.ID == clientID {
             cli = v
@@ -24,11 +24,11 @@ func ScopeJoin(scope []Scope) string {
     for _, sc := range scope {
         s = append(s, sc.ID)
     }
-    return strings.Join(s,",")
+    return strings.Join(s, ",")
 }
 
 func ScopeFilter(clientID string, scope string) (s []Scope) {
-    cli := GetClient(clientID)
+    cli := GetOAuth2Client(clientID)
     sl := strings.Split(scope, ",")
     for _, str := range sl {
         for _, sc := range cli.Scope {

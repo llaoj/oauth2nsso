@@ -163,7 +163,7 @@ func authorizeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type TplData struct {
-    Client config.Client
+    Client config.OAuth2Client
     // 用户申请的合规scope
     Scope []config.Scope
     Error string
@@ -182,7 +182,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
     // 页面数据
     data := TplData{
-        Client: config.GetClient(clientID),
+        Client: config.GetOAuth2Client(clientID),
         Scope:  config.ScopeFilter(clientID, scope),
     }
     if data.Scope == nil {

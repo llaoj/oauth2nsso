@@ -28,7 +28,7 @@ func (u *User) Authentication(ctx context.Context, username, password string) (u
     if config.Get().AuthMode == "db" {
         // write your own user authentication logic
         // like:
-        //   db.WithContext(ctx).Where("name = ? AND password = ?", username, password).First(u)
+        //   DB().WithContext(ctx).Where("name = ? AND password = ?", username, password).First(u)
         //   userID = u.ID
         if username != "user01" || password != "password01" {
             // test account:
