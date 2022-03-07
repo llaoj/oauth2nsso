@@ -432,10 +432,12 @@ cp config.example.yaml /etc/oauth2/config.yaml
 vi /etc/oauth2/config.yaml
 ...
 
-# 修改源码
+# 如果使用 LDAP方式 验证用户, 直接修改配置文件即可
+# OR
+# 如果使用 数据库方式 验证用户, 需要修改源码
 # 主要修改登录部分逻辑:
-# 文件: model/user.go:13
-# 方法: GetUserIDByPwd()
+# 文件: model/user.go:21
+# 方法: Authentication()
 ...
 ```
 
