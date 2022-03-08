@@ -1,4 +1,4 @@
-module github.com/llaoj/oauth2
+module github.com/llaoj/oauth2nsso
 
 go 1.13
 

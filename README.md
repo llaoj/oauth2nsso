@@ -2,7 +2,7 @@
 
 ## 项目介绍
 
-[llaoj/oauth2](https://github.com/llaoj/oauth2) 项目是基于 go-oauth2 打造的**独立**的 OAuth2.0 和 SSO 服务，提供了开箱即用的 OAuth2.0服务和单点登录SSO服务。开源一年多，获得了社区很多用户的关注，该项目多公司线上在用，其中包含上市公司。轻又好用，稳的一P。
+[llaoj/oauth2nsso](https://github.com/llaoj/oauth2nsso) 项目是基于 go-oauth2 打造的**独立**的 OAuth2.0 和 SSO 服务，提供了开箱即用的 OAuth2.0服务和单点登录SSO服务。开源一年多，获得了社区很多用户的关注，该项目多公司线上在用，其中包含上市公司。轻又好用，稳的一P。
 
 ## B站视频讲解
 
@@ -10,13 +10,13 @@
 
 ## 单点登录(SSO)示例
 
-[单点登录(SSO)示例](http://rutron.net/docs/oaut2nsso/demo/)
+[单点登录(SSO)示例](http://rutron.net/docs/oauth2nsso/demo/)
 
 ## 动图演示
 
 授权码(authorization_code)流程 & 单点登录(SSO)
 
-![authorization_code_n_sso](https://raw.githubusercontent.com/llaoj/oauth2/master/docs/demo-pic/authorization_code_n_sso.gif)
+![authorization_code_n_sso](https://raw.githubusercontent.com/llaoj/oauth2nsso/master/docs/demo-pic/authorization_code_n_sso.gif)
 
 ## 主要功能
 
@@ -33,7 +33,7 @@
 6. 刷新 token 接口 `/refresh`
 7. 专门为 SSO 开发的客户端登出接口 `/logout`
 
-详情见[API说明](http://rutron.net/docs/oaut2nsso/apis/)
+详情见[API说明](http://rutron.net/docs/oauth2nsso/apis/)
 
 
 
@@ -151,9 +151,9 @@ oauth2:
 
 |参数|类型|说明|
 |-|-|-|
-|client_id|string|在oauth2 server注册的client_id,见配置文件[oauth2.client.id](http://rutron.net/docs/oaut2nsso/configuration/)|
+|client_id|string|在oauth2 server注册的client_id,见配置文件[oauth2.client.id](http://rutron.net/docs/oauth2nsso/configuration/)|
 |response_type|string|固定值:`code`|
-|scope|string|权限范围,如:`str1,str2,str3`,str为配置文件中[oauth2.client.scope.id](http://rutron.net/docs/oaut2nsso/configuration/)的值 |
+|scope|string|权限范围,如:`str1,str2,str3`,str为配置文件中[oauth2.client.scope.id](http://rutron.net/docs/oauth2nsso/configuration/)的值 |
 |state|string|表示客户端的当前状态,可以指定任意值,认证服务器会原封不动地返回这个值|
 |redirect_uri|string|回调uri,会在后面添加query参数`?code=xxx&state=xxx`,发放的code就在其中|
 

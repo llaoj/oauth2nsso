@@ -4,8 +4,8 @@ import (
     "context"
     "errors"
 
-    "github.com/llaoj/oauth2/config"
-    "github.com/llaoj/oauth2/pkg/ldap"
+    "github.com/llaoj/oauth2nsso/config"
+    "github.com/llaoj/oauth2nsso/pkg/ldap"
 )
 
 type User struct {

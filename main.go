@@ -21,9 +21,9 @@ import (
     // "github.com/go-redis/redis"
     // oredis "gopkg.in/go-oauth2/redis.v3"
 
-    "github.com/llaoj/oauth2/config"
-    "github.com/llaoj/oauth2/model"
-    "github.com/llaoj/oauth2/pkg/session"
+    "github.com/llaoj/oauth2nsso/config"
+    "github.com/llaoj/oauth2nsso/model"
+    "github.com/llaoj/oauth2nsso/pkg/session"
 )
 
 var srv *server.Server

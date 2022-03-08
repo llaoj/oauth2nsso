@@ -9,7 +9,7 @@ import (
     "strings"
 
     ldap "github.com/go-ldap/ldap/v3"
-    "github.com/llaoj/oauth2/config"
+    "github.com/llaoj/oauth2nsso/config"
 )
 
 type Session struct {

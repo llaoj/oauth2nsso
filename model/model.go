@@ -9,7 +9,7 @@ import (
     "gorm.io/gorm"
     "gorm.io/gorm/logger"
 
-    "github.com/llaoj/oauth2/config"
+    "github.com/llaoj/oauth2nsso/config"
 )
 
 var db *gorm.DB

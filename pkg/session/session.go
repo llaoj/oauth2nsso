@@ -9,7 +9,7 @@ import (
     "github.com/gorilla/sessions"
     // "gopkg.in/boj/redistore.v1"
 
-    "github.com/llaoj/oauth2/config"
+    "github.com/llaoj/oauth2nsso/config"
 )
 
 var store *sessions.CookieStore
