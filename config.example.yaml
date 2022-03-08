@@ -21,7 +21,7 @@ db:
     port: 3306
     user: 123
     password: abc
-    dbname: oauth2
+    dbname: oauth2nsso
 
 ldap:
   # 服务地址

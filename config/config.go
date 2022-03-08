@@ -13,7 +13,7 @@ import (
 var cfg App
 
 func Setup() {
-    path := flag.String("config", "/etc/oauth2/config.yaml", "the absolute path of config.yaml")
+    path := flag.String("config", "/etc/oauth2nsso/config.yaml", "the absolute path of config.yaml")
     flag.Parse()
 
     content, err := ioutil.ReadFile(*path)

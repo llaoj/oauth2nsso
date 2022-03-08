@@ -39,7 +39,7 @@
 
 # 配置
 
-该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`--config=`标签进行配置。比如：`oauth2 --config=/etc/oauth2/app.yaml`
+该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`--config=`标签进行配置.
 
 配置文件介绍如下：
 
@@ -67,7 +67,7 @@ db:
     port: 3306
     user: 123
     password: abc
-    dbname: oauth2
+    dbname: oauth2nsso
 
 ldap:
   # 服务地址
@@ -133,6 +133,14 @@ oauth2:
           # 权限范围名称
           # 会在页面（登录页面）进行展示
           title: "用户账号、手机、权限、角色等信息"
+
+    - id: test_client_2
+      secret: test_secret_2
+      name: 测试应用2 
+      domain: http://localhost:9094
+      scope:
+        - id: all
+          title: 用户账号, 手机, 权限, 角色等信息
 
 ```
 
@@ -424,12 +432,12 @@ http://localhost:9096/logout?redirect_uri=http%3a%2f%2flocalhost%3a9096%2fauthor
 
 ```sh
 # 克隆源码
-git clone git@github.com:llaoj/oauth2.git
-cd oauth2
+git clone git@github.com:llaoj/oauth2nsso.git
+cd oauth2nsso
 
 # 根据实际情况修改配置
-cp config.example.yaml /etc/oauth2/config.yaml
-vi /etc/oauth2/config.yaml
+cp config.example.yaml /etc/oauth2nsso/config.yaml
+vi /etc/oauth2nsso/config.yaml
 ...
 
 # 如果使用 LDAP方式 验证用户, 直接修改配置文件即可
@@ -450,9 +458,9 @@ vi /etc/oauth2/config.yaml
 docker build -t <image:tag> .
 
 # 运行
-docker run --rm --name=oauth2 --restart=always -d \
+docker run --rm --name=oauth2nsso --restart=always -d \
 -p 9096:9096 \
--v <path to config.yaml>:/etc/oauth2/config.yaml \
+-v <path to config.yaml>:/etc/oauth2nsso/config.yaml \
 <image:tag>
 ```
 
@@ -464,7 +472,7 @@ docker run --rm --name=oauth2 --restart=always -d \
 go build -mod=vendor
 
 # 运行
-./oauth2 -config=/etc/oauth2/config.yaml
+./oauth2nsso -config=/etc/oauth2nsso/config.yaml
 ```
 
 

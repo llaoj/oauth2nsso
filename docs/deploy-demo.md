@@ -3,7 +3,7 @@
 单机容器部署
 
 ```sh
-docker run --restart always -d --name oauth2nssodemo -p 8083:9096 registry.cn-beijing.aliyuncs.com/llaoj/oauth2:0.2.0
+docker run --restart always -d --name oauth2nssodemo -p 8083:9096 registry.cn-beijing.aliyuncs.com/llaoj/oauth2nsso:0.2.0
 ```
 
 ## 前置LB(NGINX)配置
