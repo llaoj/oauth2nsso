@@ -36,7 +36,6 @@
 详情见[API说明](http://rutron.net/docs/oauth2nsso/apis/)
 
 
-
 # 配置
 
 该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`--config=`标签进行配置.
