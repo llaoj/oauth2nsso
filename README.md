@@ -5,7 +5,7 @@
 [llaoj/oauth2nsso](https://github.com/llaoj/oauth2nsso) 项目是基于 go-oauth2 打造的**独立**的 OAuth2.0 和 SSO 服务，提供了开箱即用的 OAuth2.0服务和单点登录SSO服务。开源一年多，获得了社区很多用户的关注，该项目多公司线上在用，其中包含上市公司。轻又好用，稳的一P。
 
 感谢:
-![sponsors](https://raw.githubusercontent.com/llaoj/oauth2nsso/master/docs/sponsors.pnghttps://raw.githubusercontent.com/llaoj/oauth2nsso/master/docs/demo-pic/authorization_code_n_sso.gif)
+![sponsors](https://raw.githubusercontent.com/llaoj/oauth2nsso/master/docs/sponsors.png)
 
 ## B站视频讲解
 
