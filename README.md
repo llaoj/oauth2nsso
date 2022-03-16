@@ -74,22 +74,24 @@ db:
 ldap:
   # 服务地址
   # 支持 ldap ldaps
-  url: ldap://ldap.example.org
-  # url: ldaps://ldap.example.org
+  url: ldap://ldap.forumsys.com
+  # url: ldaps://ldap.rutron.net
 
   # 查询使用的DN
-  search_dn: cn=admin,dc=example,dc=org
+  search_dn: cn=read-only-admin,dc=example,dc=com
   # 查询使用DN的密码
-  search_password: admin
+  search_password: password
   
   # 基础DN
   # 以此为基础开始查找用户
-  base_dn: dc=example,dc=org
+  base_dn: dc=example,dc=com
   # 查询用户的Filter
   # 比如: 
-  #   (&(uid=%s)) 或者 (&(objectClass=organizationalPerson)(uid=%s))
-  #   其中, (uid=%s) 表示使用 uid 属性检索用户, %s 为用户名, 这一段必须要有, 可以替换 uid 以使用其他属性检索用户名
-  filter: (&(cn=%s))
+  #   (&(uid=%s)) 
+  #   或 (&(objectClass=organizationalPerson)(uid=%s))
+  #   其中, (uid=%s) 表示使用 uid 属性检索用户, 
+  #   %s 为用户名, 这一段必须要有, 可以替换 uid 以使用其他属性检索用户名
+  filter: (&(uid=%s))
 
 # 可选
 # redis 相关配置
