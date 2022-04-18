@@ -22,7 +22,7 @@
 ![authorization_code_n_sso](https://raw.githubusercontent.com/llaoj/oauth2nsso/master/docs/demo-pic/authorization_code_n_sso.gif)
 
 ## 主要功能
-https://raw.githubusercontent.com/llaoj/oauth2nsso/master/docs/demo-pic/authorization_code_n_sso.gif
+
 **实现了oauth2的四种工作流程**
 
 1. authorization_code
@@ -145,7 +145,6 @@ oauth2:
       scope:
         - id: all
           title: 用户账号, 手机, 权限, 角色等信息
-
 ```
 
 
