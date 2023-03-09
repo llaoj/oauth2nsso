@@ -13,7 +13,7 @@
 
 ## 单点登录(SSO)示例
 
-[单点登录(SSO)示例](http://rutron.net/docs/oauth2nsso/demo/)
+[单点登录(SSO)示例](https://blog.llaoj.cn/docs/oauth2nsso/demo/)
 
 ## 动图演示
 
@@ -36,7 +36,7 @@
 6. 刷新 token 接口 `/refresh`
 7. 专门为 SSO 开发的客户端登出接口 `/logout`
 
-详情见[API说明](http://rutron.net/docs/oauth2nsso/apis/)
+详情见[API说明](https://blog.llaoj.cn/docs/oauth2nsso/apis/)
 
 
 # 配置
