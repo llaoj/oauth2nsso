@@ -39,7 +39,7 @@
 详情见[API说明](https://blog.llaoj.cn/docs/oauth2nsso/apis/)
 
 
-# 配置
+## 配置
 
 该项目的配置修改都是在配置文件中完成的，配置文件在启动应用的时候通过`--config=`标签进行配置.
 
@@ -148,11 +148,11 @@ oauth2:
 ```
 
 
-# API列表
+## API列表
 
-## 1 authorization_code
+### 1 authorization_code
 
-### 1-1 获取授权code
+#### 1-1 获取授权code
 
 **请求方式**
 
@@ -178,7 +178,7 @@ http://localhost:9096/authorize?client_id=test_client_1&response_type=code&scope
 http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz
 ```
 
-### 1-2 使用`code`交换`token`
+#### 1-2 使用`code`交换`token`
 
 **请求方式**
 
@@ -213,7 +213,7 @@ http://localhost:9093/cb?code=XUNKO4OPPROWAPFKEWNZWA&state=xyz
 }
 ```
 
-## 2 implicit
+### 2 implicit
 
 资源请求方(client方)使用, 
 多用于没有后端的应用, 
@@ -253,7 +253,7 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 2. 这种方式把令牌直接传给前端，是很不安全的。因此，只能用于一些安全要求不高的场景，并且令牌的有效期必须非常短，通常就是会话期间（session）有效，浏览器关掉，令牌就失效了
 
 
-## 3 password
+### 3 password
 
 资源请求方(client方)使用
 如果充分信任接入应用(client), 用户就可以直接把用户名密码给接入应用.
@@ -293,7 +293,7 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 }
 ```
 
-## 4 client_credentials
+### 4 client_credentials
 
 资源请求方(client方)使用
 使用在oauth2服务器注册的client_id 和 client_secret 获取 access_token,
@@ -330,7 +330,7 @@ http://localhost:9093/cb#access_token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhd
 }
 ```
 
-## 5 验证token
+### 5 验证token
 
 **接口说明**
 
@@ -367,7 +367,7 @@ Response Body:
 
 Response Body: `invalid access token`
 
-## 6 刷新token
+### 6 刷新token
 
 刷新access_token, 使用refresh_token换取access_token
 
@@ -405,7 +405,7 @@ Response Body: `invalid access token`
 }
 ```
 
-## 7 logout
+### 7 logout
 
 专门为SSO开发, 
 主要是销毁浏览器的会话, 退出登录状态, 跳转到指定链接(redirect_uri)
@@ -427,9 +427,9 @@ http://localhost:9096/logout?redirect_uri=http%3a%2f%2flocalhost%3a9096%2fauthor
 ```
 
 
-# 部署
+## 部署
 
-## 修改配置和完善代码
+### 修改配置和完善代码
 
 克隆到代码之后，首先需要进行配置文件的修改和部分代码逻辑的编写：
 
@@ -452,7 +452,7 @@ vi /etc/oauth2nsso/config.yaml
 ...
 ```
 
-## 使用docker部署
+### 使用docker部署
 
 **[推荐]** 容器化部署比较方便进行大规模部署，是当下的趋势。需要本地有 docker 环境。
 
@@ -467,7 +467,7 @@ docker run --rm --name=oauth2nsso --restart=always -d \
 <image:tag>
 ```
 
-## 基于源码部署
+### 基于源码部署
 
 ```sh
 # 在仓库根目录
@@ -478,10 +478,15 @@ go build -mod=vendor
 ./oauth2nsso -config=/etc/oauth2nsso/config.yaml
 ```
 
+## 客户端接入
 
-# 版本说明
+下面是用户第一次登录客户端(待接入应用)过程的时序图, 图中标明了 API 调用时机, 可以参考该流程接入SSO
 
-## v0.2.0
+![uml1](docs/uml1.png)
+
+## 版本说明
+
+### v0.2.0
 
 该项目发布以来收到了很多朋友的关注，很多公司都将它应用到了一些比较重要的项目中。同时，也对该项目提出了很多要求。综合这些，开发了这个版本。同时希望朋友们互相交流，多提意见。
 
