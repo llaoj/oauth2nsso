@@ -13,7 +13,7 @@
 
 ## 单点登录(SSO)示例
 
-[单点登录(SSO)示例](https://blog.llaoj.cn/docs/oauth2nsso/demo/)
+[单点登录(SSO)示例](docs/demo.md)
 
 ## 动图演示
 

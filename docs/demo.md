@@ -8,9 +8,9 @@
 
 [测试应用2](http://oauth2nssodemo.p.rutron.net/authorize?client_id=test_client_2&response_type=code&scope=all&state=xyz&redirect_uri=http://localhost:9094/cb)
 
-点击其中一个应用, **要求登录**, 输入`admin/admin`实完成登录, OAuth2NSSO会回掉返回`code`, 使用该`code`就可以调用 [接口1-2](/docs/oauth2nsso/apis) 获取`access_token`.
+点击其中一个应用, **要求登录**, 输入`admin/admin`实完成登录, OAuth2NSSO会回掉返回`code`, 使用该`code`就可以调用 [接口1-2](../README.md#1-2-%E4%BD%BF%E7%94%A8code%E4%BA%A4%E6%8D%A2token) 获取`access_token`.
 
-再次点击另外一个应用, **无需登录**, 直接回掉返回`code`. 同样, 使用`code`该应用可以调用 [接口1-2](/docs/oauth2nsso/apis) 获取`access_token`.
+再次点击另外一个应用, **无需登录**, 直接回掉返回`code`. 同样, 使用`code`该应用可以调用 [接口1-2](../README.md#1-2-%E4%BD%BF%E7%94%A8code%E4%BA%A4%E6%8D%A2token) 获取`access_token`.
 
 ### 退出
 
